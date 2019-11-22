@@ -2,6 +2,7 @@ package com.example.za_app
 
 import android.Manifest
 import android.annotation.SuppressLint
+import android.content.DialogInterface
 import android.content.pm.PackageManager
 import android.os.Bundle
 import com.google.android.material.floatingactionbutton.FloatingActionButton
@@ -20,7 +21,11 @@ import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
 import android.content.res.Resources.NotFoundException
+import android.graphics.Bitmap
+import android.graphics.drawable.BitmapDrawable
 import android.location.Location
+import android.location.LocationListener
+import android.location.LocationManager
 import android.os.Build
 import android.util.Log
 import com.google.android.gms.maps.model.*
@@ -28,8 +33,12 @@ import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.LatLngBounds
 import android.widget.Toast
 import androidx.annotation.NonNull
+import androidx.appcompat.app.AlertDialog
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import androidx.core.graphics.drawable.toBitmap
+import com.google.android.gms.tasks.Task
+import kotlinx.android.synthetic.main.content_main.*
 
 
 class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener, OnMapReadyCallback,
@@ -39,22 +48,68 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     /**********Variables*****************************************************************************/
     private val MY_LOCATION_REQUEST_CODE = 1
     private var googleMap:GoogleMap?=null
+    private var locationManager : LocationManager? = null
+
+
+    var Mylongtude = 0.0
+    var Mylatitude = 0.0
 
     private val TAG = MainActivity::class.java!!.getSimpleName()
 
     /*************************************************************************************************/
 
+    @SuppressLint("MissingPermission")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         val toolbar: Toolbar = findViewById(R.id.toolbar)
         setSupportActionBar(toolbar)
 
+        getcurentLocalisation()
+
         val fab: FloatingActionButton = findViewById(R.id.fab)
         fab.setOnClickListener { view ->
-            Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                .setAction("Action", null).show()
+
+          val builder = AlertDialog.Builder(this)
+            //set title for alert dialog
+            builder.setTitle("Ajouter un lieu")
+            //set message for alert dialog
+            builder.setMessage("Voulez vous utilisez votre position actuelle ou un marqueur pour definir un nouveau lieu")
+            builder.setIcon(android.R.drawable.ic_dialog_map)
+
+            //performing positive action
+            builder.setPositiveButton("Utiliser ma Position actuelle"){dialogInterface, which ->
+                Snackbar.make(view, "Vous êtes ici", Snackbar.LENGTH_LONG)
+                    .setAction("Action", null).show()
+                googleMap!!.clear()
+                getcurentLocalisation()
+                addMarkerMap(Mylatitude,Mylongtude,"Vous êtes ici","Cliquez pour éditer!",  18.0f, true)
+
+
+            }
+            //performing cancel action
+            builder.setNeutralButton("Annuler"){dialogInterface , which ->
+
+            }
+            //performing negative action
+            builder.setNegativeButton("Utiliser un marqueur"){dialogInterface, which ->
+                Snackbar.make(view, "Voici le marqueur! PLacer le à l'endroit à repertorier.", Snackbar.LENGTH_LONG)
+                    .setAction("Action", null).show()
+                googleMap!!.clear()
+
+                addMarkerMap(6.3653600,2.4183300,"Vous êtes ici","Cliquez pour éditer!",  18.0f, true)
+
+            }
+
+            // Create the AlertDialog
+            val alertDialog: AlertDialog = builder.create()
+            // Set other dialog properties
+            alertDialog.setCancelable(false)
+            alertDialog.show()
+
         }
+
+
         val drawerLayout: DrawerLayout = findViewById(R.id.drawer_layout)
         val navView: NavigationView = findViewById(R.id.nav_view)
         val toggle = ActionBarDrawerToggle(
@@ -64,7 +119,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         toggle.syncState()
 
         navView.setNavigationItemSelectedListener(this)
-        /**********************************************************************************************/
+
 
         val mapFragment = supportFragmentManager
             .findFragmentById(R.id.map) as SupportMapFragment
@@ -73,6 +128,44 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
     }
 
+
+
+    fun getcurentLocalisation(){
+    // Create persistent LocationManager reference
+        var locationManager = getSystemService(LOCATION_SERVICE) as LocationManager?
+        try {
+            // Request location updates
+            locationManager?.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 0L, 0f, locationListener);
+
+        } catch (ex: SecurityException) {
+            Log.d("myTag", "Security Exception, no location available");
+        }
+    }
+    private val locationListener: LocationListener = object : LocationListener {
+        override fun onLocationChanged(location: Location) {
+           // thetext.setText("" + location.longitude + ":" + location.latitude);
+
+           Mylongtude = location.longitude
+           Mylatitude = location.latitude
+
+        }
+        override fun onStatusChanged(provider: String, status: Int, extras: Bundle) {}
+        override fun onProviderEnabled(provider: String) {}
+        override fun onProviderDisabled(provider: String) {}
+    }
+
+    /*********resize Image*********************************************************************/
+
+    fun resizeImage(height: Int,width : Int,resources: Int): Bitmap? {
+        val bitmapdraw = getResources().getDrawable(resources)
+        var b = bitmapdraw.toBitmap()
+        val smallMarker = Bitmap.createScaledBitmap(b, width, height, false);
+        return smallMarker
+    }
+
+
+    /*********Permission Maps location*********************************************************************/
+
     @SuppressLint("MissingPermission")
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
             if (requestCode == MY_LOCATION_REQUEST_CODE) {
@@ -80,9 +173,9 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                     permissions[0] == Manifest.permission.ACCESS_FINE_LOCATION &&
                     grantResults[0] == PackageManager.PERMISSION_GRANTED
                 ) {
-                    googleMap!!.setMyLocationEnabled(true);
+                  googleMap!!.setMyLocationEnabled(true);
                 } else {
-                    // Permission was denied. Display an error message.
+                    Toast.makeText(this, "Permission refusé", Toast.LENGTH_SHORT).show()
                 }
             }
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
@@ -107,6 +200,8 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     override fun onMapReady(p0: GoogleMap?) {
         googleMap=p0
 
+        googleMap!!.setBuildingsEnabled(true)
+
         if (Build.VERSION.SDK_INT >= 23) {
 
             if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
@@ -127,7 +222,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             val Benin = LatLngBounds(
                 LatLng( -6.0930506171051775, 2.0521418699095193), LatLng(17.99600167732847, 2.0472767657738586)
             )
-            //googleMap!!.setLatLngBoundsForCameraTarget(Benin)
+           //googleMap!!.setLatLngBoundsForCameraTarget(Benin)
         })
 
         /****Maps Json style call********************************************************************/
@@ -148,37 +243,24 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         }
         /**********************************************************************************************/
 
-        //Adding draggable markers to map
-
-        val PERTH = LatLng(6.3653600, 2.4183300)
-        val perth = googleMap!!.addMarker(
-            MarkerOptions()
-                .position(PERTH)
-                .draggable(true)
-                .title("Maman Aya")
-                .snippet("Specialité: Yovo Doko")
-                .icon(BitmapDescriptorFactory.fromResource(R.drawable.yovo_doko))
-
-        )
-        perth.showInfoWindow();
-
-        //Adding markers to map
-
-        val latLng=LatLng(6.3653600,2.4183300)
-        val markerOptions:MarkerOptions=MarkerOptions().position(latLng).title("Benin")
-
-        // moving camera and zoom map
-
-        val zoomLevel = 15.0f //This goes up to 21
-
-        googleMap.let {
-            it!!.addMarker(markerOptions)
-            it.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, zoomLevel))
-        }
-
 
     }
 
+
+    fun addMarkerMap(latitude: Double,longitude: Double, titre: String,info: String, zoomLevel: Float,drag: Boolean){
+        val PERTH = LatLng(latitude, longitude)
+        val perth = googleMap!!.addMarker(
+            MarkerOptions()
+                .position(PERTH)
+                .draggable(drag)
+                .title(titre)
+                .snippet(info)
+                .icon(BitmapDescriptorFactory.fromBitmap(resizeImage(150,150,R.drawable.ic_marqueur)))
+        )
+        perth.showInfoWindow()
+
+        googleMap!!.moveCamera(CameraUpdateFactory.newLatLngZoom(PERTH, zoomLevel))
+    }
 
 /**********MENU AND OPTIONS********************************************************************************/
 
@@ -210,18 +292,13 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     override fun onNavigationItemSelected(item: MenuItem): Boolean {
         // Handle navigation view item clicks here.
         when (item.itemId) {
-            R.id.nav_home -> {
+            R.id.nav_see -> {
                 // Handle the camera action
             }
-            R.id.nav_gallery -> {
+            R.id.nav_fav -> {
 
             }
-            R.id.nav_slideshow -> {
 
-            }
-            R.id.nav_tools -> {
-
-            }
             R.id.nav_share -> {
 
             }
