@@ -17,7 +17,14 @@
     <string name="menu_see">Déjà visité</string>
 
     <!-- TODO: Remove or change this placeholder text -->
-    <string name="hello_blank_fragment">Hello blank fragment</string>
-
+    <string name="swipe_left_for_register">S\'inscrire</string>
+    <string name="login">Connexion</string>
+    <string name="password">Mot de passe</string>
+    <string name="e_mail">Email</string>
+    <string name="tag">Let\'s join us and \nBuild your relationship with others</string>
+    <string name="swipe_right_for_login">Se connecter</string>
+    <string name="register">Inscription</string>
+    <string name="re_type_password">Confirmez le mot de passe</string>
+    <string name="your_name">Nom Complet</string>
 
 </resources>

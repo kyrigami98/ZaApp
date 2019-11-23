@@ -9,17 +9,13 @@ import kotlinx.android.synthetic.main.activity_loading.*
 
 class LoadingActivity : AppCompatActivity() {
 
-
-    private var progressBarStatus = 0
-    var dummy:Int = 0
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_loading)
 
         val handler = Handler()
         handler.postDelayed(Runnable {
-            val intent = Intent(this@LoadingActivity, MainActivity::class.java)
+            val intent = Intent(this@LoadingActivity, ConnectActivity::class.java)
             startActivity(intent)
             finish()
         }, 3000)
