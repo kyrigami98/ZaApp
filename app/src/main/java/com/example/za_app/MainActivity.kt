@@ -18,6 +18,7 @@ import android.graphics.Bitmap
 import android.location.*
 import android.net.Uri
 import android.os.Build
+import android.os.Handler
 import android.util.Log
 import android.view.*
 import com.google.android.gms.maps.model.*
@@ -31,6 +32,7 @@ import com.google.android.gms.maps.*
 import com.google.android.material.snackbar.Snackbar
 import kotlinx.android.synthetic.main.app_bar_main.*
 import kotlinx.android.synthetic.main.content_main.*
+import kotlinx.android.synthetic.main.modal.*
 import kotlinx.android.synthetic.main.modal.view.*
 import java.util.*
 
@@ -127,8 +129,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             }
             //performing cancel action
             builder.setNeutralButton("Annuler"){dialogInterface , which ->
-                supprimer.show()
-                fab.hide()
+                fab.show()
                 mainLoginBtn.hide()
             }
             //performing negative action
@@ -178,9 +179,14 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         mapFragment.getMapAsync(this)
 
 
+            dialogModal()
+
+
+    }
+
+    fun dialogModal(){
         //button click to show dialog
         mainLoginBtn.setOnClickListener {
-
             //Inflate the dialog with custom view
             val mDialogView = LayoutInflater.from(this).inflate(R.layout.modal, null)
             //AlertDialogBuilder
@@ -213,14 +219,17 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                     else{
                         //permission already granted
                         pickImageFromGallery()
-                        mDialogView.imageView5.setImageURI(imageload)
                     }
                 }
                 else{
                     //system OS is < Marshmallow
                     pickImageFromGallery()
-                    mDialogView.imageView5.setImageURI(imageload)
                 }
+                val handler = Handler()
+                handler.postDelayed(Runnable {
+                    mDialogView.imageView5.setImageURI(imageload)
+                }, (15000))
+
             }
             /*************************************************************************************************/
 
@@ -244,13 +253,13 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                     R.drawable.logo)
 
             }
-            //cancel button click of custom layout
+
             mDialogView.dialogCancelBtn.setOnClickListener {
                 //dismiss dialog
                 mAlertDialog.dismiss()
             }
-        }
 
+        }
 
     }
 
