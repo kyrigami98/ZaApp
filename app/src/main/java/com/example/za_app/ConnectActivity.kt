@@ -22,14 +22,14 @@ class ConnectActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_connect)
 
-        imageView3.setOnClickListener(object : View.OnClickListener {
+        inscrip.setOnClickListener(object : View.OnClickListener {
             override fun onClick(v: View?) {
                 val intent = Intent(this@ConnectActivity, InscriptionActivity::class.java)
                 startActivity(intent)
             }
         })
 
-        btn_login.setOnClickListener(object : View.OnClickListener {
+        login.setOnClickListener(object : View.OnClickListener {
             override fun onClick(v: View?) {
                 val intent = Intent(this@ConnectActivity, MainActivity::class.java)
                 startActivity(intent)

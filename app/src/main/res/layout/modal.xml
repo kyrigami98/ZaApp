@@ -1,0 +1,116 @@
+<ScrollView
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent">
+
+    <LinearLayout
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:padding="20dp">
+
+    <ImageView
+            android:padding="15dp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/imageView5"
+            android:background="#FFFFFF" android:scaleType="center"
+            app:srcCompat="@android:drawable/ic_menu_camera"/>
+    <Button
+
+
+            android:fontFamily="@font/roboto"
+            android:textColor="@android:color/white"
+            android:id="@+id/addpic"
+            android:text="Ajouter une photo"
+            style="@style/Base.Widget.AppCompat.Button.Colored"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" android:textAlignment="center" android:textColorLink="#FA7B38"/>
+    <EditText
+
+            android:layout_marginTop="10dp"
+            android:padding="15dp"
+            android:background="@drawable/et_custom"
+            android:id="@+id/dialogNameEt"
+            android:hint="Nom du lieu"
+            android:inputType="textPersonName"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"/>
+    <EditText
+
+            android:layout_marginTop="10dp"
+            android:padding="15dp"
+            android:background="@drawable/et_custom"
+            android:id="@+id/specialite"
+            android:hint="Specialités"
+            android:inputType="text"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"/>
+    <EditText
+
+            android:layout_marginTop="10dp"
+            android:padding="15dp"
+            android:background="@drawable/et_custom"
+            android:id="@+id/jourOuv"
+            android:hint="Jours d'ouvertures"
+            android:inputType="text"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"/>
+
+    <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="80dp"
+            android:orientation="horizontal"
+            android:gravity="center">
+
+        <EditText android:background="@drawable/et_custom"
+                  android:padding="15dp"
+                  android:layout_width="wrap_content"
+                  android:layout_height="wrap_content"
+                  android:inputType="time"
+                  android:ems="10"
+                  android:id="@+id/heureDeb" android:layout_weight="1" android:hint="Heure d'ouverture"/>
+        <EditText android:background="@drawable/et_custom"
+                  android:padding="15dp"
+                  android:layout_width="wrap_content"
+                  android:layout_height="wrap_content"
+                  android:inputType="time"
+                  android:ems="10"
+                  android:id="@+id/heureFerm" android:layout_weight="1" android:hint="Heure de fermeture"/>
+
+    </LinearLayout>
+    <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center">
+
+        <Button
+
+                android:fontFamily="@font/roboto"
+                android:textColor="@android:color/white"
+                android:id="@+id/dialogCancelBtn"
+                android:text="Cancel"
+                style="@style/Base.Widget.AppCompat.Button.Colored"
+                android:layout_width="161dp"
+                android:layout_height="wrap_content" android:textColorLink="#00FFFCFC"
+                android:backgroundTint="#E4756464" android:textAlignment="center"/>
+
+        <Button
+
+
+                android:fontFamily="@font/roboto"
+                android:textColor="@android:color/white"
+                android:id="@+id/dialogLoginBtn"
+                android:text="Modifier"
+                style="@style/Base.Widget.AppCompat.Button.Colored"
+                android:layout_width="165dp"
+                android:layout_height="wrap_content" android:textAlignment="center"/>
+
+    </LinearLayout>
+
+</LinearLayout>
+
+
+</ScrollView>

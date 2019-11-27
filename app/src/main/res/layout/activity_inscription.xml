@@ -1,4 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
+
+
 <LinearLayout
         xmlns:android="http://schemas.android.com/apk/res/android"
         xmlns:tools="http://schemas.android.com/tools"
@@ -9,19 +11,17 @@
 
     <TextView
             android:id="@+id/tv_logo"
-            android:layout_width="304dp"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="@string/register"
             android:textAlignment="center"
             android:textSize="50sp"
-            android:layout_marginStart="25dp"
-            android:layout_marginBottom="5dp"
             android:fontFamily="@font/damion"
-            android:layout_marginTop="60dp" android:textColor="#FC7B38" android:layout_alignParentStart="true"/>
+            android:textColor="#FC7B38" android:layout_alignParentStart="true"/>
 
     <TextView
             android:id="@+id/tv_subtitle"
-            android:layout_width="315dp"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="@string/tag"
             android:textSize="17sp"
@@ -90,7 +90,7 @@
             android:layout_weight="1">
 
         <Button
-                android:id="@+id/btn_register"
+                android:id="@+id/btn_login"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:background="@drawable/btn_custom"
@@ -107,7 +107,7 @@
                 android:layout_height="30dp"
                 android:src="@drawable/ic_arrow_left"
                 android:layout_above="@id/swipeLeft"
-                android:layout_centerHorizontal="true" android:id="@+id/connect"/>
+                android:layout_centerHorizontal="true" android:id="@+id/connexion"/>
 
         <TextView
                 android:id="@+id/swipeLeft"
@@ -122,15 +122,15 @@
         <CheckBox
                 android:text="J'ai lu et j'accepte les"
                 android:layout_width="181dp"
-                android:layout_height="45dp" android:id="@+id/checkBox" android:layout_above="@+id/btn_register"
+                android:layout_height="45dp" android:id="@+id/checkBox" android:layout_above="@+id/btn_login"
                 android:layout_marginBottom="38dp" android:layout_marginEnd="177dp"
-                android:layout_marginStart="13dp" android:layout_alignStart="@+id/btn_register"
-                android:layout_alignEnd="@+id/btn_register" android:gravity="center"/>
+                android:layout_marginStart="13dp" android:layout_alignStart="@+id/btn_login"
+                android:layout_alignEnd="@+id/btn_login" android:gravity="center"/>
         <TextView
                 android:text="conditions d'utilisations."
                 android:layout_width="173dp"
                 android:layout_height="wrap_content" android:id="@+id/textView2"
-                android:layout_above="@+id/btn_register"
+                android:layout_above="@+id/btn_login"
                 android:layout_marginBottom="50dp" android:layout_marginEnd="-174dp"
                 android:layout_alignEnd="@+id/checkBox" android:textStyle="bold" android:textColor="#EDFF5722"
                 android:fontFamily="@font/roboto"/>
