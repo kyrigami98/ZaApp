@@ -7,7 +7,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="vertical"
-        tools:context=".InscriptionActivity">
+        tools:context=".InscriptionActivity" android:id="@+id/layout1">
 
     <TextView
             android:id="@+id/tv_logo"
@@ -90,7 +90,7 @@
             android:layout_weight="1">
 
         <Button
-                android:id="@+id/btn_login"
+                android:id="@+id/btn_register"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:background="@drawable/btn_custom"
@@ -122,21 +122,20 @@
         <CheckBox
                 android:text="J'ai lu et j'accepte les"
                 android:layout_width="181dp"
-                android:layout_height="45dp" android:id="@+id/checkBox" android:layout_above="@+id/btn_login"
+                android:layout_height="45dp" android:id="@+id/checkBox" android:layout_above="@+id/btn_register"
                 android:layout_marginBottom="38dp" android:layout_marginEnd="177dp"
-                android:layout_marginStart="13dp" android:layout_alignStart="@+id/btn_login"
-                android:layout_alignEnd="@+id/btn_login" android:gravity="center"/>
+                android:layout_marginStart="13dp" android:layout_alignStart="@+id/btn_register"
+                android:layout_alignEnd="@+id/btn_register" android:gravity="center"/>
         <TextView
                 android:text="conditions d'utilisations."
                 android:layout_width="173dp"
                 android:layout_height="wrap_content" android:id="@+id/textView2"
-                android:layout_above="@+id/btn_login"
+                android:layout_above="@+id/btn_register"
                 android:layout_marginBottom="50dp" android:layout_marginEnd="-174dp"
                 android:layout_alignEnd="@+id/checkBox" android:textStyle="bold" android:textColor="#EDFF5722"
                 android:fontFamily="@font/roboto"/>
 
     </RelativeLayout>
-
 
 
 </LinearLayout>

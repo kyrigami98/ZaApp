@@ -3,6 +3,8 @@ package com.example.za_app
 import android.Manifest
 import android.annotation.SuppressLint
 import android.app.Activity
+import android.app.TimePickerDialog
+import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Bundle
@@ -30,9 +32,13 @@ import androidx.core.content.ContextCompat
 import androidx.core.graphics.drawable.toBitmap
 import com.google.android.gms.maps.*
 import com.google.android.material.snackbar.Snackbar
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.database.FirebaseDatabase
+import com.google.firebase.firestore.DocumentChange
+import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.storage.FirebaseStorage
+import com.google.firebase.storage.StorageReference
 import kotlinx.android.synthetic.main.app_bar_main.*
-import kotlinx.android.synthetic.main.content_main.*
-import kotlinx.android.synthetic.main.modal.*
 import kotlinx.android.synthetic.main.modal.view.*
 import java.util.*
 
@@ -46,7 +52,12 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     private var googleMap:GoogleMap?=null
     private var locationManager : LocationManager? = null
 
-    var imageload = Uri.parse("")
+
+    private var currentMarker: Marker? = null
+
+    private var context: Context? = null
+    lateinit var imagePath: String
+    var imagesList: MutableList<Uri> = arrayListOf()
 
     var Mylongtude = 2.315834
     var Mylatitude = 9.0578879005793
@@ -60,6 +71,15 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     var markerdrag = HashMap<Marker, Integer>()
 
     private val TAG = MainActivity::class.java.simpleName
+    private var mStorageRef: StorageReference? = null
+
+    private var mAuth: FirebaseAuth = FirebaseAuth.getInstance()
+    private val mDatabase = FirebaseDatabase.getInstance()
+
+    private val db = FirebaseFirestore.getInstance()
+
+    private val stokage = FirebaseStorage.getInstance()
+    private val storageRef = stokage.reference
 
     /*************************************************************************************************/
 
@@ -73,6 +93,52 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         snack.show()
     }
 
+    fun getAndlaodPoints() {
+
+        db.collection("lieux")
+            .get()
+            .addOnSuccessListener { documents ->
+                for (document in documents) {
+                   // Log.d(TAG, "${document.data["nom"]} => ${document.data}")
+                    addMarkerMap(
+                        document.data["latitude"] as Double, document.data["longitude"] as Double,
+                        document.data["nom"] as String,
+                        document.data["specialite"] as String, 7.0f, false, R.drawable.logo
+                    )
+
+                }
+            }
+            .addOnFailureListener { exception ->
+                Log.w(TAG, "Error getting documents: ", exception)
+            }
+
+    }
+
+
+    fun updatePoints() {
+
+        db.collection("lieux")
+            .addSnapshotListener { snapshots, e ->
+                if (e != null) {
+                    Log.w(TAG, "listen:error", e)
+                    return@addSnapshotListener
+                }
+
+                for (dc in snapshots!!.documentChanges) {
+                    if (dc.type == DocumentChange.Type.ADDED) {
+                        addMarkerMap(
+                            dc.document.data["latitude"] as Double, dc.document.data["longitude"] as Double,
+                            dc.document.data["nom"] as String,
+                            dc.document.data["specialite"] as String, 7.0f, false, R.drawable.logo
+                        )
+                    }
+                }
+                getAndlaodPoints()
+            }
+
+    }
+
+
     @SuppressLint("MissingPermission")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -81,15 +147,42 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         setSupportActionBar(toolbar)
 
 
+        snack("Connecté")
         getcurentLocalisation()
         mainLoginBtn.hide()
         supprimer.hide()
+        valider.hide()
+        getAndlaodPoints()
+        updatePoints()
+
+        mStorageRef = FirebaseStorage.getInstance().getReference();
+
+        valider.setOnClickListener { view ->
+
+            val lieuTab : lieu = lieu(NomLieu,speciality,JourOuv,heureOuv,heureFerm,Mylongtude,Mylatitude)
+            db.collection("lieux")
+            .add(lieuTab)
+            var imagesname = NomLieu.trim()+Mylatitude+Mylongtude;
+            sendImageDatabase(imagesname.trim())
+            snack("Ajouter avec succès!")
+            googleMap!!.clear()
+            supprimer.hide()
+            mainLoginBtn.hide()
+            fab.show()
+            valider.hide()
+
+            googleMap!!.uiSettings.setScrollGesturesEnabled(true);
+
+        }
 
         supprimer.setOnClickListener { view ->
             googleMap!!.clear()
             supprimer.hide()
             mainLoginBtn.hide()
             fab.show()
+            valider.hide()
+            googleMap!!.uiSettings.setScrollGesturesEnabled(true);
+            getAndlaodPoints()
         }
 
         val fab: FloatingActionButton = findViewById(R.id.fab)
@@ -106,18 +199,23 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             //performing positive action
             builder.setPositiveButton("Utiliser ma Position actuelle"){dialogInterface, which ->
 
-                googleMap!!.clear()
-                getcurentLocalisation()
-
                 if(getCountryInfo(Mylatitude,Mylongtude) == false) {
+
+                    googleMap!!.clear()
+                    getcurentLocalisation()
 
                     addMarkerMap(
                         Mylatitude, Mylongtude, "Maintenez le marqueur pour le déplacer",
                         "Cliquez pour éditer!", 7.0f, true, R.drawable.logo
                     )
+
+                    googleMap!!.uiSettings.setScrollGesturesEnabled(false);
+
                     supprimer.show()
                     fab.hide()
                     mainLoginBtn.show()
+                    valider.show()
+
                 }else{
 
                     snack("Le service est indisponible dans ce pays!")
@@ -143,14 +241,18 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                         "Maintenez le marqueur pour le déplacer", "Cliquez pour éditer!",
                         GetCameraCenter()!!.zoom,
                         true,R.drawable.logo)
+
+                    googleMap!!.uiSettings.setScrollGesturesEnabled(false);
                     supprimer.show()
                     fab.hide()
                     mainLoginBtn.show()
+                    valider.show()
                 }
                 else{
                         snack("Ce service est indisponible dans ce pays!")
                          mainLoginBtn.hide()
                         fab.show()
+                    valider.hide()
                 }
 
             }
@@ -196,16 +298,20 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             //show dialog
             val  mAlertDialog = mBuilder.show()
 
-            mDialogView.dialogNameEt.setText(NomLieu)
+                mDialogView.dialogNameEt.setText(NomLieu)
             mDialogView.specialite.setText(speciality)
             mDialogView.jourOuv.setText(JourOuv)
             mDialogView.heureDeb.setText(heureOuv)
             mDialogView.heureFerm.setText(heureFerm)
 
+            if(imagesList.isNotEmpty()){
+                mDialogView.imageView5.setImageURI(imagesList.get(0))
+                mDialogView.imageView6.setImageURI(imagesList.get(1))
+                mDialogView.imageView7.setImageURI(imagesList.get(2))
+            }
 
             /*************Pick image*****************************************************************************/
 
-            mDialogView.imageView5.setImageURI(imageload)
             mDialogView.addpic.setOnClickListener {
                 //check runtime permission
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M){
@@ -227,16 +333,49 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                 }
                 val handler = Handler()
                 handler.postDelayed(Runnable {
-                    mDialogView.imageView5.setImageURI(imageload)
+                    mDialogView.imageView5.setImageURI(imagesList.get(0))
+                    mDialogView.imageView6.setImageURI(imagesList.get(1))
+                    mDialogView.imageView7.setImageURI(imagesList.get(2))
                 }, (15000))
 
             }
             /*************************************************************************************************/
+            mDialogView.heureDeb.setOnClickListener{
+                val c = Calendar.getInstance()
+                val hour = c.get(Calendar.HOUR)
+                val minute = c.get(Calendar.MINUTE)
+
+                val tpd = TimePickerDialog(this,TimePickerDialog.OnTimeSetListener(function = { view, h, m ->
+
+                    val heure = if (h < 10) "0" + h else h
+                    val minute = if (m < 10) "0" + m else m
+                    mDialogView.heureDeb.setText(heure.toString() + ":" + minute.toString())
+
+                }),hour,minute,false)
+                tpd.setTitle("Heure d'ouverture");
+                tpd.show()
+            }
+
+
+            mDialogView.heureFerm.setOnClickListener{
+                val c = Calendar.getInstance()
+                val hour = c.get(Calendar.HOUR)
+                val minute = c.get(Calendar.MINUTE)
+
+                val tpd = TimePickerDialog(this,TimePickerDialog.OnTimeSetListener(function = { view, h, m ->
+
+                    val heure = if (h < 10) "0" + h else h
+                    val minute = if (m < 10) "0" + m else m
+                    mDialogView.heureFerm.setText(heure.toString() + ":" + minute.toString())
+
+                }),hour,minute,false)
+                tpd.setTitle("Heure de Fermerture");
+                tpd.show()
+            }
 
             //login button click of custom layout
             mDialogView.dialogLoginBtn.setOnClickListener {
                 //dismiss dialog
-                mAlertDialog.dismiss()
                 //get text from EditTexts of custom layout
                 NomLieu = mDialogView.dialogNameEt.text.toString()
                 speciality = mDialogView.specialite.text.toString()
@@ -245,6 +384,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                 heureFerm = mDialogView.heureFerm.text.toString()
                 //set the input text in TextView
 
+                mAlertDialog.dismiss()
                 googleMap!!.clear()
 
                 addMarkerMap(GetCameraCenter()!!.target.latitude,GetCameraCenter()!!.target.longitude,
@@ -263,11 +403,44 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
     }
 
+
+
+    fun sendImageDatabase(imagesname: String) {
+        if(imagesList.isNotEmpty()){
+            var i = 0
+            imagesList.forEach(){
+                var file = it
+                val riversRef = storageRef.child("imagesLieux/${imagesname}/${i}")
+                var uploadTask = riversRef.putFile(file)
+                i++
+                uploadTask.addOnFailureListener {
+                    snack("Echec d'ajout des images !")
+                }.addOnSuccessListener {
+
+                }
+            }
+        }
+
+    }
+
     private fun pickImageFromGallery() {
-        //Intent to pick image
-        val intent = Intent(Intent.ACTION_PICK)
-        intent.type = "image/*"
-        startActivityForResult(intent, IMAGE_PICK_CODE)
+
+        if (Build.VERSION.SDK_INT < 19) {
+            var intent = Intent()
+            intent.type = "image/*"
+            intent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true)
+            intent.action = Intent.ACTION_GET_CONTENT
+            startActivityForResult(
+                Intent.createChooser(intent, "Choisissez des images")
+                , PICK_IMAGE_MULTIPLE
+            )
+        } else {
+            var intent = Intent(Intent.ACTION_OPEN_DOCUMENT)
+            intent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true)
+            intent.addCategory(Intent.CATEGORY_OPENABLE)
+            intent.type = "image/*"
+            startActivityForResult(intent, PICK_IMAGE_MULTIPLE);
+        }
     }
 
     companion object {
@@ -275,18 +448,35 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         private val IMAGE_PICK_CODE = 1000
         //Permission code
         private val PERMISSION_CODE = 1001
+        private var PICK_IMAGE_MULTIPLE = 1
     }
 
 
     //handle result of picked image
     @SuppressLint("MissingSuperCall")
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        if (resultCode == Activity.RESULT_OK && requestCode == IMAGE_PICK_CODE){
-            imageload = data?.data
+
+        super.onActivityResult(requestCode, resultCode, data)
+        // When an Image is picked
+        if (requestCode == PICK_IMAGE_MULTIPLE && resultCode == Activity.RESULT_OK
+            && null != data
+        ) {
+            if (data.getClipData() != null) {
+                var count = data.clipData!!.itemCount
+                for (i in 0..count - 1) {
+                    var imageUri: Uri = data.clipData!!.getItemAt(i).uri
+                    imageUri.let { imagesList.add(it) }
+
+                }
+            } else if (data.getData() != null) {
+                var imagePath: String? = data.data!!.path
+                Log.e("imagePath", imagePath);
+            }
 
         }
-    }
 
+
+    }
 
     fun getcurentLocalisation(){
     // Create persistent LocationManager reference
@@ -424,6 +614,10 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                 p0!!.hideInfoWindow()
             }
             override fun onMarkerDragEnd(p0: Marker?) {
+
+                Mylatitude = p0!!.position.latitude
+                Mylongtude = p0!!.position.longitude
+
                 var coordinate =  LatLng(p0!!.position.latitude, p0.position.longitude)
                 var location = CameraUpdateFactory.newLatLng(
                     coordinate)
@@ -435,12 +629,14 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                         R.drawable.logo)))
                     mainLoginBtn.isEnabled = true
                     mainLoginBtn.isClickable = true
+                    valider.show()
                 } else{
                     p0.setIcon(BitmapDescriptorFactory.fromBitmap(resizeImage(100,100,
                         android.R.drawable.ic_delete)))
                     snack("Le service est indisponible dans ce pays.")
                     mainLoginBtn.isEnabled = false
                     mainLoginBtn.isClickable = false
+                    valider.hide()
                 }
 
 
@@ -451,15 +647,14 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         })
 
 
-        googleMap!!.setOnMarkerClickListener {
+        googleMap!!.setOnMarkerClickListener (object : GoogleMap.OnMarkerClickListener {
+            override fun onMarkerClick(marker: Marker): Boolean {
+                currentMarker = marker
+                marker.zIndex += 1.0f
+                return false
+            }
 
-            mainLoginBtn.callOnClick()
-
-            // Return false to indicate that we have not consumed the event and that we wish
-            // for the default behavior to occur (which is for the camera to move such that the
-            // marker is centered and for the marker's info window to open, if it has one).
-            false
-        }
+        })
 
 
         googleMap!!.setOnInfoWindowClickListener {

@@ -57,6 +57,23 @@
             app:layout_constraintVertical_bias="0.902" app:layout_constraintEnd_toEndOf="parent"
             android:layout_marginEnd="120dp" android:layout_marginStart="8dp"
             app:layout_constraintStart_toStartOf="parent" app:layout_anchorGravity="start|bottom"
-            app:layout_anchor="@+id/include"/>
+            app:layout_anchor="@+id/include" app:backgroundTint="#00F7F2F2"/>
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+            android:id="@+id/valider"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom|center"
+            android:layout_margin="@dimen/fab_margin"
+            app:srcCompat="@android:drawable/ic_menu_send"
+            android:backgroundTint="#72E076"
+            app:fabSize="auto"
+            android:layout_marginTop="8dp" app:layout_constraintTop_toTopOf="parent"
+            android:tint="#FDF7F3F3"
+            android:layout_marginBottom="8dp" app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintVertical_bias="0.902" app:layout_constraintEnd_toEndOf="parent"
+            android:layout_marginEnd="120dp" android:layout_marginStart="8dp"
+            app:layout_constraintStart_toStartOf="parent" app:layout_anchorGravity="bottom|center"
+            app:layout_anchor="@+id/include" app:backgroundTint="#1EEE28" android:foregroundTint="#FDFCF7F7"
+            app:rippleColor="#F3EFEF"/>
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>
