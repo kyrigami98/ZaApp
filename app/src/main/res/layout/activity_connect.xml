@@ -1,123 +1,128 @@
 <?xml version="1.0" encoding="utf-8"?>
-
-<LinearLayout
+<ScrollView
         xmlns:android="http://schemas.android.com/apk/res/android"
-        xmlns:app="http://schemas.android.com/apk/res-auto" xmlns:tools="http://schemas.android.com/tools"
-        android:id="@+id/lay"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:gravity="center"
-        tools:context=".ConnectActivity">
-
-
-    <ImageView
-            android:layout_marginTop="80dp"
-            android:layout_width="match_parent"
-            android:layout_height="73dp" app:srcCompat="@drawable/logo" android:id="@+id/imageView2"
-            android:layout_centerHorizontal="true"/>
-    <TextView
-            android:id="@+id/tv_logo2"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="@string/login"
-            android:textAlignment="center"
-            android:textSize="50sp"
-            android:fontFamily="@font/damion"
-            android:layout_marginTop="10dp"
-            android:textColor="#FC7B38" android:layout_marginEnd="8dp"
-            android:layout_centerHorizontal="true"/>
-    <TextView
-            android:id="@+id/tv_subtitle"
-            android:layout_width="353dp"
-            android:layout_height="49dp"
-            android:text="@string/tag"
-            android:textSize="14sp"
-            android:fontFamily="@font/roboto"
-            android:layout_above="@id/et_email1" android:textAlignment="center"/>
-
-    <EditText
-            android:id="@+id/et_email1"
-            android:layout_width="306dp"
-            android:layout_height="65dp"
-            android:hint="@string/e_mail"
-            android:padding="15dp"
-            android:inputType="textEmailAddress"
-            android:fontFamily="@font/roboto"
-            android:layout_above="@id/et_password1"
-            android:background="@drawable/et_custom"
-            android:textSize="15sp"
-            android:layout_marginLeft="20dp"
-            android:layout_marginRight="20dp"
-            android:layout_marginBottom="10dp"
-    />
-
-    <EditText
-            android:id="@+id/et_password1"
-            android:layout_width="304dp"
-            android:layout_height="59dp"
-            android:hint="@string/password"
-            android:padding="15dp"
-            android:fontFamily="@font/roboto"
-            android:inputType="textPassword"
-            android:layout_centerInParent="true"
-            android:background="@drawable/et_custom"
-            android:textSize="15sp"
-            android:layout_marginLeft="20dp"
-            android:layout_marginRight="20dp"
-            android:layout_marginBottom="10dp"
-    />
-
-
-    <Switch
-
-            android:layout_marginLeft="20dp"
-            android:layout_marginRight="20dp"
-            android:layout_marginBottom="10dp"
-            android:text="Restez connecté"
-            android:layout_width="272dp"
-            android:layout_height="36dp"
-            android:id="@+id/switch1" android:layout_centerHorizontal="true"/>
-    <Button
-            android:id="@+id/login"
-            android:layout_width="312dp"
-            android:layout_height="wrap_content"
-            android:background="@drawable/btn_custom"
-            android:fontFamily="@font/roboto"
-            android:layout_marginLeft="20dp"
-            android:layout_marginRight="20dp"
-            android:layout_marginBottom="30dp"
-            android:textColor="@android:color/white"
-            android:text="@string/login" android:backgroundTint="#FC7B38"
-            android:textStyle="bold" android:layout_centerVertical="true" android:layout_centerHorizontal="true"/>
-    <RelativeLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_weight="1" android:id="@+id/inscrip">
-
-        <ImageView
+        xmlns:app="http://schemas.android.com/apk/res-auto" android:layout_width="fill_parent"
+        android:layout_height="fill_parent">
+        <LinearLayout
+                xmlns:android="http://schemas.android.com/apk/res/android"
+                xmlns:app="http://schemas.android.com/apk/res-auto"
+                xmlns:tools="http://schemas.android.com/tools"
+                android:id="@+id/lay"
                 android:layout_width="match_parent"
-                android:layout_height="72dp"
-                android:src="@drawable/ic_arrow_right"
-                android:layout_above="@+id/swipeRight"
-                android:id="@+id/Inscription"
-                android:layout_marginBottom="27dp"/>
-
-        <TextView
-                android:id="@+id/swipeRight"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/swipe_left_for_register"
-                android:textSize="15sp"
-                android:fontFamily="@font/roboto"
-                android:layout_centerHorizontal="true"
-                android:layout_alignParentBottom="true"
-                android:layout_marginBottom="20dp"/>
+                android:layout_height="match_parent"
+                android:orientation="vertical"
+                android:gravity="center"
+                tools:context=".ConnectActivity">
 
 
-    </RelativeLayout>
+                <ImageView
+                        android:layout_marginTop="80dp"
+                        android:layout_width="match_parent"
+                        android:layout_height="73dp" app:srcCompat="@drawable/logo" android:id="@+id/imageView2"
+                        android:layout_centerHorizontal="true"/>
+                <TextView
+                        android:id="@+id/tv_logo2"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="@string/login"
+                        android:textAlignment="center"
+                        android:textSize="50sp"
+                        android:fontFamily="@font/damion"
+                        android:layout_marginTop="10dp"
+                        android:textColor="#FC7B38" android:layout_marginEnd="8dp"
+                        android:layout_centerHorizontal="true"/>
+                <TextView
+                        android:id="@+id/tv_subtitle"
+                        android:layout_width="353dp"
+                        android:layout_height="49dp"
+                        android:text="@string/tag"
+                        android:textSize="14sp"
+                        android:fontFamily="@font/roboto"
+                        android:layout_above="@id/et_email1" android:textAlignment="center"/>
+
+                <EditText
+                        android:id="@+id/et_email1"
+                        android:layout_width="306dp"
+                        android:layout_height="65dp"
+                        android:hint="@string/e_mail"
+                        android:padding="15dp"
+                        android:inputType="textEmailAddress"
+                        android:fontFamily="@font/roboto"
+                        android:layout_above="@id/et_password1"
+                        android:background="@drawable/et_custom"
+                        android:textSize="15sp"
+                        android:layout_marginLeft="20dp"
+                        android:layout_marginRight="20dp"
+                        android:layout_marginBottom="10dp"
+                />
+
+                <EditText
+                        android:id="@+id/et_password1"
+                        android:layout_width="304dp"
+                        android:layout_height="59dp"
+                        android:hint="@string/password"
+                        android:padding="15dp"
+                        android:fontFamily="@font/roboto"
+                        android:inputType="textPassword"
+                        android:layout_centerInParent="true"
+                        android:background="@drawable/et_custom"
+                        android:textSize="15sp"
+                        android:layout_marginLeft="20dp"
+                        android:layout_marginRight="20dp"
+                        android:layout_marginBottom="10dp"
+                />
 
 
+                <Switch
+
+                        android:layout_marginLeft="20dp"
+                        android:layout_marginRight="20dp"
+                        android:layout_marginBottom="10dp"
+                        android:text="Restez connecté"
+                        android:layout_width="272dp"
+                        android:layout_height="36dp"
+                        android:id="@+id/switch1" android:layout_centerHorizontal="true"/>
+                <Button
+                        android:id="@+id/login"
+                        android:layout_width="312dp"
+                        android:layout_height="wrap_content"
+                        android:background="@drawable/btn_custom"
+                        android:fontFamily="@font/roboto"
+                        android:layout_marginLeft="20dp"
+                        android:layout_marginRight="20dp"
+                        android:layout_marginBottom="30dp"
+                        android:textColor="@android:color/white"
+                        android:text="@string/login" android:backgroundTint="#FC7B38"
+                        android:textStyle="bold" android:layout_centerVertical="true"
+                        android:layout_centerHorizontal="true"/>
+                <RelativeLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="158dp"
+                        android:layout_weight="1" android:id="@+id/inscrip">
+
+                        <ImageView
+                                android:layout_width="match_parent"
+                                android:layout_height="72dp"
+                                android:src="@drawable/ic_arrow_right"
+                                android:layout_above="@+id/swipeRight"
+                                android:id="@+id/Inscription"
+                                android:layout_marginBottom="27dp"/>
+
+                        <TextView
+                                android:id="@+id/swipeRight"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="@string/swipe_left_for_register"
+                                android:textSize="15sp"
+                                android:fontFamily="@font/roboto"
+                                android:layout_centerHorizontal="true"
+                                android:layout_alignParentBottom="true"
+                                android:layout_marginBottom="20dp"/>
 
 
-</LinearLayout>
+                </RelativeLayout>
+
+
+        </LinearLayout>
+
+</ScrollView>

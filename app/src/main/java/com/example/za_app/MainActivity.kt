@@ -23,6 +23,7 @@ import android.os.Build
 import android.os.Handler
 import android.util.Log
 import android.view.*
+import android.widget.EditText
 import com.google.android.gms.maps.model.*
 import com.google.android.gms.maps.model.LatLng
 import android.widget.Toast
@@ -83,61 +84,6 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
     /*************************************************************************************************/
 
-    fun snack(s: String) {
-        val snack = Snackbar.make(this.toolbar,s,
-            Snackbar.LENGTH_LONG)
-
-        snack.setAction("Ok!", View.OnClickListener {
-
-        })
-        snack.show()
-    }
-
-    fun getAndlaodPoints() {
-
-        db.collection("lieux")
-            .get()
-            .addOnSuccessListener { documents ->
-                for (document in documents) {
-                   // Log.d(TAG, "${document.data["nom"]} => ${document.data}")
-                    addMarkerMap(
-                        document.data["latitude"] as Double, document.data["longitude"] as Double,
-                        document.data["nom"] as String,
-                        document.data["specialite"] as String, 7.0f, false, R.drawable.logo
-                    )
-
-                }
-            }
-            .addOnFailureListener { exception ->
-                Log.w(TAG, "Error getting documents: ", exception)
-            }
-
-    }
-
-
-    fun updatePoints() {
-
-        db.collection("lieux")
-            .addSnapshotListener { snapshots, e ->
-                if (e != null) {
-                    Log.w(TAG, "listen:error", e)
-                    return@addSnapshotListener
-                }
-
-                for (dc in snapshots!!.documentChanges) {
-                    if (dc.type == DocumentChange.Type.ADDED) {
-                        addMarkerMap(
-                            dc.document.data["latitude"] as Double, dc.document.data["longitude"] as Double,
-                            dc.document.data["nom"] as String,
-                            dc.document.data["specialite"] as String, 7.0f, false, R.drawable.logo
-                        )
-                    }
-                }
-                getAndlaodPoints()
-            }
-
-    }
-
 
     @SuppressLint("MissingPermission")
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -170,7 +116,12 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             mainLoginBtn.hide()
             fab.show()
             valider.hide()
-
+            NomLieu =""
+            speciality =""
+            JourOuv =""
+            heureOuv =""
+            heureFerm =""
+            imagesList.clear()
             googleMap!!.uiSettings.setScrollGesturesEnabled(true);
 
         }
@@ -183,6 +134,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             valider.hide()
             googleMap!!.uiSettings.setScrollGesturesEnabled(true);
             getAndlaodPoints()
+
         }
 
         val fab: FloatingActionButton = findViewById(R.id.fab)
@@ -281,8 +233,12 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         mapFragment.getMapAsync(this)
 
 
-            dialogModal()
+         dialogModal()
 
+
+    }
+
+    fun LieuModal(){
 
     }
 
@@ -298,7 +254,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             //show dialog
             val  mAlertDialog = mBuilder.show()
 
-                mDialogView.dialogNameEt.setText(NomLieu)
+            mDialogView.dialogNameEt.setText(NomLieu)
             mDialogView.specialite.setText(speciality)
             mDialogView.jourOuv.setText(JourOuv)
             mDialogView.heureDeb.setText(heureOuv)
@@ -309,6 +265,38 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                 mDialogView.imageView6.setImageURI(imagesList.get(1))
                 mDialogView.imageView7.setImageURI(imagesList.get(2))
             }
+
+
+            mDialogView.jourOuv.setOnClickListener {
+
+
+                val items = arrayOf("Lundi", "Mardi", "Mercredi", "Jeudi","Vendredi","Samedi","Dimanche")
+                val selectedList = ArrayList<Int>()
+                val builder = AlertDialog.Builder(this)
+
+                builder.setTitle("Selectionnez les jours d'ouvertures:")
+                builder.setMultiChoiceItems(items, null
+                ) { dialog, which, isChecked ->
+                    if (isChecked) {
+                        selectedList.add(which)
+                    } else if (selectedList.contains(which)) {
+                        selectedList.remove(Integer.valueOf(which))
+                    }
+                }
+
+                builder.setPositiveButton("Ajouter") { dialogInterface, i ->
+                    val selectedStrings = ArrayList<String>()
+                    JourOuv = ""
+                    for (j in selectedList.indices) {
+                        JourOuv = JourOuv+items[selectedList[j]]+"; "
+                    }
+                    mDialogView.jourOuv.setText(JourOuv)
+
+                }
+
+                builder.show()
+            }
+
 
             /*************Pick image*****************************************************************************/
 
@@ -331,12 +319,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                     //system OS is < Marshmallow
                     pickImageFromGallery()
                 }
-                val handler = Handler()
-                handler.postDelayed(Runnable {
-                    mDialogView.imageView5.setImageURI(imagesList.get(0))
-                    mDialogView.imageView6.setImageURI(imagesList.get(1))
-                    mDialogView.imageView7.setImageURI(imagesList.get(2))
-                }, (15000))
+
 
             }
             /*************************************************************************************************/
@@ -403,6 +386,61 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
     }
 
+
+    fun snack(s: String) {
+        val snack = Snackbar.make(this.toolbar,s,
+            Snackbar.LENGTH_LONG)
+
+        snack.setAction("Ok!", View.OnClickListener {
+
+        })
+        snack.show()
+    }
+
+    fun getAndlaodPoints() {
+
+        db.collection("lieux")
+            .get()
+            .addOnSuccessListener { documents ->
+                for (document in documents) {
+                    // Log.d(TAG, "${document.data["nom"]} => ${document.data}")
+                    addMarkerMap(
+                        document.data["latitude"] as Double, document.data["longitude"] as Double,
+                        document.data["nom"] as String,
+                        document.data["specialite"] as String, 7.0f, false, R.drawable.logo
+                    )
+
+                }
+            }
+            .addOnFailureListener { exception ->
+                Log.w(TAG, "Error getting documents: ", exception)
+            }
+
+    }
+
+
+    fun updatePoints() {
+
+        db.collection("lieux")
+            .addSnapshotListener { snapshots, e ->
+                if (e != null) {
+                    Log.w(TAG, "listen:error", e)
+                    return@addSnapshotListener
+                }
+
+                for (dc in snapshots!!.documentChanges) {
+                    if (dc.type == DocumentChange.Type.ADDED) {
+                        addMarkerMap(
+                            dc.document.data["latitude"] as Double, dc.document.data["longitude"] as Double,
+                            dc.document.data["nom"] as String,
+                            dc.document.data["specialite"] as String, 7.0f, false, R.drawable.logo
+                        )
+                    }
+                }
+                getAndlaodPoints()
+            }
+
+    }
 
 
     fun sendImageDatabase(imagesname: String) {
@@ -490,6 +528,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             Log.d("myTag", "Security Exception, no location available")
         }
     }
+
     private val locationListener: LocationListener = object : LocationListener {
         override fun onLocationChanged(location: Location) {
            // thetext.setText("" + location.longitude + ":" + location.latitude);
@@ -625,13 +664,13 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                 p0.showInfoWindow()
 
                 if(getCountryInfo(p0.position.latitude, p0.position.longitude) == false){
-                    p0.setIcon(BitmapDescriptorFactory.fromBitmap(resizeImage(100,100,
+                    p0.setIcon(BitmapDescriptorFactory.fromBitmap(resizeImage(70,70,
                         R.drawable.logo)))
                     mainLoginBtn.isEnabled = true
                     mainLoginBtn.isClickable = true
                     valider.show()
                 } else{
-                    p0.setIcon(BitmapDescriptorFactory.fromBitmap(resizeImage(100,100,
+                    p0.setIcon(BitmapDescriptorFactory.fromBitmap(resizeImage(70,70,
                         android.R.drawable.ic_delete)))
                     snack("Le service est indisponible dans ce pays.")
                     mainLoginBtn.isEnabled = false
@@ -651,6 +690,20 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             override fun onMarkerClick(marker: Marker): Boolean {
                 currentMarker = marker
                 marker.zIndex += 1.0f
+
+                val builder = AlertDialog.Builder(this@MainActivity)
+                val inflater = layoutInflater
+                builder.setTitle(currentMarker!!.title)
+                val dialogLayout = inflater.inflate(R.layout.lieu_profil, null)
+                builder.setView(dialogLayout)
+
+                builder.setPositiveButton("Fermer") { dialogInterface, i ->
+
+                }
+
+
+                builder.show()
+
                 return false
             }
 
@@ -703,7 +756,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                 .draggable(drag)
                 .title(titre)
                 .snippet(info)
-                .icon(BitmapDescriptorFactory.fromBitmap(resizeImage(100,100,image)))
+                .icon(BitmapDescriptorFactory.fromBitmap(resizeImage(70,70,image)))
         )
         perth.showInfoWindow()
         perth.tag = 1

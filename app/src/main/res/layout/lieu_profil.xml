@@ -1,0 +1,153 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+            xmlns:app="http://schemas.android.com/apk/res-auto" xmlns:tools="http://schemas.android.com/tools"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+
+    <LinearLayout
+            android:layout_width="match_parent"
+                  android:layout_height="match_parent"
+                  tools:context="com.demotxt.droidsrce.profileui.MainActivity"
+                  android:background="@android:color/white"
+                  android:orientation="vertical">
+        <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="348dp">
+            <com.google.android.material.floatingactionbutton.FloatingActionButton
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:clickable="true" app:srcCompat="@drawable/ic_arrow_left"
+                    android:layout_gravity="start"
+                    android:id="@+id/floatingActionButton2" app:backgroundTint="#F5F3F3"
+                    android:layout_alignParentBottom="true" android:layout_marginBottom="140dp"
+                    android:layout_marginStart="10dp"
+                    android:layout_marginTop="152dp" android:layout_alignParentTop="true"/>
+
+            <com.google.android.material.floatingactionbutton.FloatingActionButton
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="end"
+                    android:clickable="true" app:srcCompat="@drawable/ic_arrow_right"
+                    android:id="@+id/floatingActionButton3" app:backgroundTint="#F8F7F7"
+                    android:layout_marginEnd="10dp" android:layout_alignParentEnd="true"
+                    android:layout_alignParentBottom="true" android:layout_marginBottom="140dp"
+                    android:layout_marginTop="152dp" android:layout_alignParentTop="true"/>
+            <LinearLayout
+                    android:background="@drawable/background"
+                    android:layout_width="match_parent"
+                    android:layout_height="350dp"
+                    android:orientation="vertical">
+
+            </LinearLayout>
+
+        </RelativeLayout>
+
+        <com.google.android.material.floatingactionbutton.FloatingActionButton
+                android:layout_width="142dp"
+                android:layout_height="55dp"
+                android:layout_gravity="center"
+                android:clickable="true"
+                app:srcCompat="@android:drawable/btn_star_big_on" app:backgroundTint="#FFFFFF"/>
+
+        <LinearLayout
+                android:layout_width="314dp"
+                android:layout_height="269dp"
+                android:orientation="vertical"
+                android:layout_gravity="center"
+                android:layout_marginTop="45dp">
+
+            <LinearLayout
+                    android:orientation="horizontal"
+                    android:paddingLeft="25dp"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+                <ImageView
+                        android:layout_width="36dp"
+                        android:layout_height="36dp"
+                        android:src="@drawable/ic_menu_gallery" android:tint="#FC7A37"/>
+                <TextView
+                        android:textStyle="bold"
+                        android:layout_gravity="center_vertical"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:paddingLeft="20dp"
+                        android:text="Wiliam@gmail.com"/>
+            </LinearLayout>
+            <LinearLayout
+                    android:layout_marginTop="25dp"
+                    android:orientation="horizontal"
+                    android:paddingLeft="25dp"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+                <ImageView
+                        android:layout_width="36dp"
+                        android:layout_height="36dp"
+                        android:src="@drawable/ic_menu_camera" android:tint="#FC7A37"/>
+                <TextView
+                        android:textStyle="bold"
+
+                        android:layout_gravity="center_vertical"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:paddingLeft="20dp"
+                        android:text="+266 225 225"/>
+            </LinearLayout>
+            <LinearLayout
+                    android:layout_marginTop="25dp"
+                    android:orientation="horizontal"
+                    android:paddingLeft="25dp"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+                <ImageView
+                        android:layout_width="36dp"
+                        android:layout_height="36dp"
+                        android:src="@drawable/ic_menu_manage" android:tint="#FC7A37"/>
+                <TextView
+                        android:textStyle="bold"
+
+                        android:layout_gravity="center_vertical"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:paddingLeft="20dp"
+                        android:text="Add to group"/>
+            </LinearLayout>
+            <LinearLayout
+                    android:layout_marginTop="25dp"
+                    android:orientation="horizontal"
+                    android:paddingLeft="25dp"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+                <ImageView
+                        android:layout_width="36dp"
+                        android:layout_height="36dp"
+                        android:src="@drawable/ic_menu_slideshow" android:tint="#FC7A37"/>
+                <TextView
+                        android:textStyle="bold"
+
+                        android:layout_gravity="center_vertical"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:paddingLeft="20dp"
+                        android:text="Show all comments"/>
+            </LinearLayout>
+        </LinearLayout>
+
+        <Button
+                android:id="@+id/closeLieu"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@drawable/btn_custom"
+                android:fontFamily="@font/roboto"
+                android:layout_marginLeft="20dp"
+                android:layout_marginRight="20dp"
+                android:layout_marginBottom="30dp"
+                android:textColor="@android:color/white"
+                android:text="Allez maintenant" android:backgroundTint="#FC7B38"
+                android:textStyle="bold" android:layout_centerVertical="true"
+                android:layout_centerHorizontal="true"/>
+
+    </LinearLayout>
+
+
+</ScrollView>
