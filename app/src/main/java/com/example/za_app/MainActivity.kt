@@ -17,6 +17,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 
 import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 import android.location.*
 import android.net.Uri
 import android.os.Build
@@ -24,6 +25,7 @@ import android.os.Handler
 import android.util.Log
 import android.view.*
 import android.widget.EditText
+import android.widget.ImageView
 import com.google.android.gms.maps.model.*
 import com.google.android.gms.maps.model.LatLng
 import android.widget.Toast
@@ -31,6 +33,7 @@ import androidx.appcompat.app.AlertDialog
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.core.graphics.drawable.toBitmap
+import com.bumptech.glide.Glide
 import com.google.android.gms.maps.*
 import com.google.android.material.snackbar.Snackbar
 import com.google.firebase.auth.FirebaseAuth
@@ -40,7 +43,11 @@ import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.storage.FirebaseStorage
 import com.google.firebase.storage.StorageReference
 import kotlinx.android.synthetic.main.app_bar_main.*
+import kotlinx.android.synthetic.main.lieu_profil.view.*
 import kotlinx.android.synthetic.main.modal.view.*
+import kotlinx.android.synthetic.main.nav_header_main.*
+import kotlinx.android.synthetic.main.nav_header_main.view.*
+import java.nio.ByteBuffer
 import java.util.*
 
 
@@ -53,6 +60,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     private var googleMap:GoogleMap?=null
     private var locationManager : LocationManager? = null
 
+    val generaltag = ""
 
     private var currentMarker: Marker? = null
 
@@ -158,7 +166,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
                     addMarkerMap(
                         Mylatitude, Mylongtude, "Maintenez le marqueur pour le déplacer",
-                        "Cliquez pour éditer!", 7.0f, true, R.drawable.logo
+                        "Cliquez pour éditer!", 7.0f, true, R.drawable.logo,generaltag
                     )
 
                     googleMap!!.uiSettings.setScrollGesturesEnabled(false);
@@ -189,10 +197,13 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
                 if(getCountryInfo(GetCameraCenter()!!.target.latitude,GetCameraCenter()!!.target.longitude) == false){
 
+                    Mylatitude = GetCameraCenter()!!.target.latitude
+                    Mylongtude = GetCameraCenter()!!.target.longitude
+
                     addMarkerMap(GetCameraCenter()!!.target.latitude,GetCameraCenter()!!.target.longitude,
                         "Maintenez le marqueur pour le déplacer", "Cliquez pour éditer!",
                         GetCameraCenter()!!.zoom,
-                        true,R.drawable.logo)
+                        true,R.drawable.logo,generaltag)
 
                     googleMap!!.uiSettings.setScrollGesturesEnabled(false);
                     supprimer.show()
@@ -268,7 +279,6 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
 
             mDialogView.jourOuv.setOnClickListener {
-
 
                 val items = arrayOf("Lundi", "Mardi", "Mercredi", "Jeudi","Vendredi","Samedi","Dimanche")
                 val selectedList = ArrayList<Int>()
@@ -373,7 +383,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                 addMarkerMap(GetCameraCenter()!!.target.latitude,GetCameraCenter()!!.target.longitude,
                     NomLieu,speciality,
                     GetCameraCenter()!!.zoom,true,
-                    R.drawable.logo)
+                    R.drawable.logo,generaltag)
 
             }
 
@@ -407,7 +417,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                     addMarkerMap(
                         document.data["latitude"] as Double, document.data["longitude"] as Double,
                         document.data["nom"] as String,
-                        document.data["specialite"] as String, 7.0f, false, R.drawable.logo
+                        document.data["specialite"] as String, 7.0f, false, R.drawable.logo,document.id
                     )
 
                 }
@@ -433,7 +443,8 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                         addMarkerMap(
                             dc.document.data["latitude"] as Double, dc.document.data["longitude"] as Double,
                             dc.document.data["nom"] as String,
-                            dc.document.data["specialite"] as String, 7.0f, false, R.drawable.logo
+                            dc.document.data["specialite"] as String, 7.0f, false, R.drawable.logo,
+                            dc.document.id
                         )
                     }
                 }
@@ -448,7 +459,8 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             var i = 0
             imagesList.forEach(){
                 var file = it
-                val riversRef = storageRef.child("imagesLieux/${imagesname}/${i}")
+                var sentence = imagesname.replace(" ", "")
+                val riversRef = storageRef.child("imagesLieux/${sentence.trim()}/${i}")
                 var uploadTask = riversRef.putFile(file)
                 i++
                 uploadTask.addOnFailureListener {
@@ -691,18 +703,6 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                 currentMarker = marker
                 marker.zIndex += 1.0f
 
-                val builder = AlertDialog.Builder(this@MainActivity)
-                val inflater = layoutInflater
-                builder.setTitle(currentMarker!!.title)
-                val dialogLayout = inflater.inflate(R.layout.lieu_profil, null)
-                builder.setView(dialogLayout)
-
-                builder.setPositiveButton("Fermer") { dialogInterface, i ->
-
-                }
-
-
-                builder.show()
 
                 return false
             }
@@ -711,10 +711,59 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
 
         googleMap!!.setOnInfoWindowClickListener {
-            // Return false to indicate that we have not consumed the event and that we wish
-            // for the default behavior to occur (which is for the camera to move such that the
-            // marker is centered and for the marker's info window to open, if it has one).
+
+
+            val builder = AlertDialog.Builder(this@MainActivity)
+            val inflater = layoutInflater
+            builder.setTitle(currentMarker!!.title)
+            val dialogLayout = inflater.inflate(R.layout.lieu_profil, null)
+            builder.setView(dialogLayout)
+            builder.setPositiveButton("Fermer") { dialogInterface, i ->
+
+            }
+            builder.show()
+
+
+            db.collection("lieux").document(currentMarker!!.tag.toString())
+                .get()
+                .addOnSuccessListener { document ->
+                    if (document != null) {
+
+                        dialogLayout.special.text=document.data!!["specialite"].toString()
+                        dialogLayout.ouvertureDay.text=document.data!!["jourOuv"].toString()
+                        dialogLayout.ouverturehour.text=document.data!!["heureOuv"].toString()
+                        dialogLayout.fermertureHour.text=document.data!!["heureFerm"].toString()
+
+
+                        var lieu = currentMarker!!.title.toString().replace(" ","").trim();
+
+                        var path = "${lieu}${currentMarker!!.position.latitude}${currentMarker!!.position.longitude}"
+
+                        var imagesLieu = stokage.reference.child("imagesLieux").child(path)
+                            .child("1.jpg")
+
+                        //snack(path)
+
+                        imagesLieu.downloadUrl.addOnSuccessListener {
+                            snack("sucess")
+                            dialogLayout.img.setImageURI(it)
+                        }.addOnFailureListener {
+                            snack("echec")
+                            // Handle any errors
+                        }
+
+                        Log.d(TAG, "DocumentSnapshot data: ${document.data}")
+                    } else {
+                        Log.d(TAG, "No such document")
+                    }
+                }
+                .addOnFailureListener { exception ->
+                    Log.w(TAG, "Error getting documents: ", exception)
+                }
+
+
             false
+
         }
 
         googleMap!!.setMinZoomPreference(6.0f)
@@ -748,7 +797,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     }
 
     fun addMarkerMap(latitude: Double,longitude: Double, titre: String,info: String, zoomLevel: Float,drag: Boolean
-                     ,image : Int){
+                     ,image : Int, tag : String){
         val PERTH = LatLng(latitude, longitude)
         val perth = googleMap!!.addMarker(
             MarkerOptions()
@@ -759,7 +808,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                 .icon(BitmapDescriptorFactory.fromBitmap(resizeImage(70,70,image)))
         )
         perth.showInfoWindow()
-        perth.tag = 1
+        perth.tag = tag
         googleMap!!.moveCamera(CameraUpdateFactory.newLatLngZoom(PERTH, zoomLevel))
 
     }

@@ -6,11 +6,14 @@
 
 
     <LinearLayout
+            android:id="@+id/bottom_sheet_layout"
             android:layout_width="match_parent"
                   android:layout_height="match_parent"
                   tools:context="com.demotxt.droidsrce.profileui.MainActivity"
                   android:background="@android:color/white"
-                  android:orientation="vertical">
+                  android:orientation="vertical"
+            app:layout_behavior="com.google.android.material.bottomsheet.BottomSheetBehavior">
+
         <RelativeLayout
                 android:layout_width="match_parent"
                 android:layout_height="348dp">
@@ -37,25 +40,21 @@
                     android:background="@drawable/background"
                     android:layout_width="match_parent"
                     android:layout_height="350dp"
-                    android:orientation="vertical">
+                    android:orientation="vertical" android:id="@+id/images">
 
+                <ImageView
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent" app:srcCompat="@android:drawable/ic_menu_camera"
+                        android:id="@+id/img"/>
             </LinearLayout>
 
         </RelativeLayout>
 
-        <com.google.android.material.floatingactionbutton.FloatingActionButton
-                android:layout_width="142dp"
-                android:layout_height="55dp"
-                android:layout_gravity="center"
-                android:clickable="true"
-                app:srcCompat="@android:drawable/btn_star_big_on" app:backgroundTint="#FFFFFF"/>
-
         <LinearLayout
-                android:layout_width="314dp"
-                android:layout_height="269dp"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
                 android:orientation="vertical"
-                android:layout_gravity="center"
-                android:layout_marginTop="45dp">
+                android:layout_margin="10dp">
 
             <LinearLayout
                     android:orientation="horizontal"
@@ -63,16 +62,23 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content">
                 <ImageView
-                        android:layout_width="36dp"
+                        android:layout_width="20dp"
                         android:layout_height="36dp"
-                        android:src="@drawable/ic_menu_gallery" android:tint="#FC7A37"/>
+                        android:src="@android:drawable/ic_input_get" android:tint="#FC7A37"/>
                 <TextView
                         android:textStyle="bold"
                         android:layout_gravity="center_vertical"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:paddingLeft="20dp"
-                        android:text="Wiliam@gmail.com"/>
+                        android:text="Spécialité :" android:layout_weight="1"/>
+                <TextView
+                        android:textStyle="bold"
+                        android:layout_gravity="center_vertical"
+                        android:layout_width="155dp"
+                        android:layout_height="wrap_content"
+                        android:paddingLeft="20dp"
+                        android:text="Vide" android:id="@+id/special"/>
             </LinearLayout>
             <LinearLayout
                     android:layout_marginTop="25dp"
@@ -81,17 +87,25 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content">
                 <ImageView
-                        android:layout_width="36dp"
+                        android:layout_width="20dp"
                         android:layout_height="36dp"
-                        android:src="@drawable/ic_menu_camera" android:tint="#FC7A37"/>
+                        android:src="@drawable/ic_menu_gallery" android:tint="#FC7A37"
+                        android:foregroundTint="#FF5722"/>
                 <TextView
                         android:textStyle="bold"
-
                         android:layout_gravity="center_vertical"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:paddingLeft="20dp"
-                        android:text="+266 225 225"/>
+                        android:text="Jours d'ouvertures :" android:layout_weight="1"/>
+                <TextView
+                        android:textStyle="bold"
+
+                        android:layout_gravity="center_vertical"
+                        android:layout_width="157dp"
+                        android:layout_height="wrap_content"
+                        android:paddingLeft="20dp"
+                        android:text="Vide" android:id="@+id/ouvertureDay"/>
             </LinearLayout>
             <LinearLayout
                     android:layout_marginTop="25dp"
@@ -100,17 +114,24 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content">
                 <ImageView
-                        android:layout_width="36dp"
+                        android:layout_width="20dp"
                         android:layout_height="36dp"
-                        android:src="@drawable/ic_menu_manage" android:tint="#FC7A37"/>
+                        android:src="@android:drawable/ic_popup_reminder" android:tint="#FC7A37"/>
                 <TextView
                         android:textStyle="bold"
-
                         android:layout_gravity="center_vertical"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:paddingLeft="20dp"
-                        android:text="Add to group"/>
+                        android:text="Heure ouverture" android:layout_weight="1"/>
+                <TextView
+                        android:textStyle="bold"
+
+                        android:layout_gravity="center_vertical"
+                        android:layout_width="155dp"
+                        android:layout_height="wrap_content"
+                        android:paddingLeft="20dp"
+                        android:text="Vide" android:id="@+id/ouverturehour"/>
             </LinearLayout>
             <LinearLayout
                     android:layout_marginTop="25dp"
@@ -119,9 +140,9 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content">
                 <ImageView
-                        android:layout_width="36dp"
+                        android:layout_width="20dp"
                         android:layout_height="36dp"
-                        android:src="@drawable/ic_menu_slideshow" android:tint="#FC7A37"/>
+                        android:src="@android:drawable/ic_lock_idle_lock" android:tint="#FC7A37"/>
                 <TextView
                         android:textStyle="bold"
 
@@ -129,7 +150,15 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:paddingLeft="20dp"
-                        android:text="Show all comments"/>
+                        android:text="Heure de fermeture" android:id="@+id/textView4" android:layout_weight="1"/>
+                <TextView
+                        android:textStyle="bold"
+
+                        android:layout_gravity="center_vertical"
+                        android:layout_width="153dp"
+                        android:layout_height="wrap_content"
+                        android:paddingLeft="20dp"
+                        android:text="Vide" android:id="@+id/fermertureHour"/>
             </LinearLayout>
         </LinearLayout>
 
@@ -145,7 +174,7 @@
                 android:textColor="@android:color/white"
                 android:text="Allez maintenant" android:backgroundTint="#FC7B38"
                 android:textStyle="bold" android:layout_centerVertical="true"
-                android:layout_centerHorizontal="true"/>
+                android:layout_centerHorizontal="true" android:layout_marginTop="20dp"/>
 
     </LinearLayout>
 
