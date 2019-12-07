@@ -26,6 +26,7 @@ import android.util.Log
 import android.view.*
 import android.widget.EditText
 import android.widget.ImageView
+import android.widget.LinearLayout
 import com.google.android.gms.maps.model.*
 import com.google.android.gms.maps.model.LatLng
 import android.widget.Toast
@@ -33,6 +34,7 @@ import androidx.appcompat.app.AlertDialog
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.core.graphics.drawable.toBitmap
+import androidx.core.view.isVisible
 import com.bumptech.glide.Glide
 import com.google.android.gms.maps.*
 import com.google.android.material.snackbar.Snackbar
@@ -42,8 +44,11 @@ import com.google.firebase.firestore.DocumentChange
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.storage.FirebaseStorage
 import com.google.firebase.storage.StorageReference
+import com.squareup.picasso.Picasso
 import kotlinx.android.synthetic.main.app_bar_main.*
+import kotlinx.android.synthetic.main.content_main.*
 import kotlinx.android.synthetic.main.lieu_profil.view.*
+import kotlinx.android.synthetic.main.modal.*
 import kotlinx.android.synthetic.main.modal.view.*
 import kotlinx.android.synthetic.main.nav_header_main.*
 import kotlinx.android.synthetic.main.nav_header_main.view.*
@@ -100,7 +105,6 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         val toolbar: Toolbar = findViewById(R.id.toolbar)
         setSupportActionBar(toolbar)
 
-
         snack("Connecté")
         getcurentLocalisation()
         mainLoginBtn.hide()
@@ -112,25 +116,43 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         mStorageRef = FirebaseStorage.getInstance().getReference();
 
         valider.setOnClickListener { view ->
+            if(getCountryInfo(Mylatitude,Mylongtude) == false) {
+                if (NomLieu.isNotEmpty() and speciality.isNotEmpty()) {
+                    if (JourOuv.isNotEmpty()) {
+                        if (heureOuv.isNotEmpty() and heureFerm.isNotEmpty()) {
 
-            val lieuTab : lieu = lieu(NomLieu,speciality,JourOuv,heureOuv,heureFerm,Mylongtude,Mylatitude)
-            db.collection("lieux")
-            .add(lieuTab)
-            var imagesname = NomLieu.trim()+Mylatitude+Mylongtude;
-            sendImageDatabase(imagesname.trim())
-            snack("Ajouter avec succès!")
-            googleMap!!.clear()
-            supprimer.hide()
-            mainLoginBtn.hide()
-            fab.show()
-            valider.hide()
-            NomLieu =""
-            speciality =""
-            JourOuv =""
-            heureOuv =""
-            heureFerm =""
-            imagesList.clear()
-            googleMap!!.uiSettings.setScrollGesturesEnabled(true);
+                            val lieuTab: lieu =
+                                lieu(NomLieu, speciality, JourOuv, heureOuv, heureFerm, Mylongtude, Mylatitude)
+                            db.collection("lieux")
+                                .add(lieuTab)
+                            var imagesname = NomLieu.trim() + Mylatitude + Mylongtude;
+                            sendImageDatabase(imagesname.trim())
+                            snack("Ajouter avec succès!")
+                            googleMap!!.clear()
+                            supprimer.hide()
+                            mainLoginBtn.hide()
+                            fab.show()
+                            valider.hide()
+                            NomLieu = ""
+                            speciality = ""
+                            JourOuv = ""
+                            heureOuv = ""
+                            heureFerm = ""
+                            imagesList.clear()
+                            googleMap!!.uiSettings.setScrollGesturesEnabled(true);
+
+                        } else {
+                            snack("Veillez choisir une heure de d'ouverture et de fermeture!")
+                        }
+                    } else {
+                        snack("Veillez choisir les jours d'ouvertures!")
+                    }
+                } else {
+                    snack("Veillez saisir le nom du lieu et les specialités!")
+                }
+            }else{
+                snack("Le service est indisponible dans ce pays!")
+            }
 
         }
 
@@ -166,7 +188,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
                     addMarkerMap(
                         Mylatitude, Mylongtude, "Maintenez le marqueur pour le déplacer",
-                        "Cliquez pour éditer!", 7.0f, true, R.drawable.logo,generaltag
+                        "Cliquez sur le crayon pour éditer!", 7.0f, true, R.drawable.logo,generaltag
                     )
 
                     googleMap!!.uiSettings.setScrollGesturesEnabled(false);
@@ -201,7 +223,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                     Mylongtude = GetCameraCenter()!!.target.longitude
 
                     addMarkerMap(GetCameraCenter()!!.target.latitude,GetCameraCenter()!!.target.longitude,
-                        "Maintenez le marqueur pour le déplacer", "Cliquez pour éditer!",
+                        "Maintenez le marqueur pour le déplacer", "Cliquez sur le crayon pour éditer!",
                         GetCameraCenter()!!.zoom,
                         true,R.drawable.logo,generaltag)
 
@@ -243,13 +265,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             .findFragmentById(R.id.map) as SupportMapFragment
         mapFragment.getMapAsync(this)
 
-
          dialogModal()
-
-
-    }
-
-    fun LieuModal(){
 
     }
 
@@ -272,9 +288,9 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             mDialogView.heureFerm.setText(heureFerm)
 
             if(imagesList.isNotEmpty()){
-                mDialogView.imageView5.setImageURI(imagesList.get(0))
-                mDialogView.imageView6.setImageURI(imagesList.get(1))
-                mDialogView.imageView7.setImageURI(imagesList.get(2))
+                mDialogView.imageView3.isVisible = true
+            }else{
+                mDialogView.imageView3.isVisible = false
             }
 
 
@@ -330,6 +346,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                     pickImageFromGallery()
                 }
 
+                mDialogView.imageView3.isVisible = true
 
             }
             /*************************************************************************************************/
@@ -370,20 +387,28 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             mDialogView.dialogLoginBtn.setOnClickListener {
                 //dismiss dialog
                 //get text from EditTexts of custom layout
-                NomLieu = mDialogView.dialogNameEt.text.toString()
-                speciality = mDialogView.specialite.text.toString()
-                JourOuv = mDialogView.jourOuv.text.toString()
-                heureOuv = mDialogView.heureDeb.text.toString()
-                heureFerm = mDialogView.heureFerm.text.toString()
-                //set the input text in TextView
+                if(mDialogView.dialogNameEt.text.isNotEmpty() and mDialogView.specialite.text.isNotEmpty() and
+                    mDialogView.jourOuv.text.isNotEmpty() and mDialogView.heureDeb.text.isNotEmpty() and
+                    mDialogView.heureFerm.text.isNotEmpty() ){
 
-                mAlertDialog.dismiss()
-                googleMap!!.clear()
+                    NomLieu = mDialogView.dialogNameEt.text.toString()
+                    speciality = mDialogView.specialite.text.toString()
+                    JourOuv = mDialogView.jourOuv.text.toString()
+                    heureOuv = mDialogView.heureDeb.text.toString()
+                    heureFerm = mDialogView.heureFerm.text.toString()
+                    //set the input text in TextView
 
-                addMarkerMap(GetCameraCenter()!!.target.latitude,GetCameraCenter()!!.target.longitude,
-                    NomLieu,speciality,
-                    GetCameraCenter()!!.zoom,true,
-                    R.drawable.logo,generaltag)
+                    mAlertDialog.dismiss()
+                    googleMap!!.clear()
+
+                    addMarkerMap(GetCameraCenter()!!.target.latitude,GetCameraCenter()!!.target.longitude,
+                        NomLieu,speciality,
+                        GetCameraCenter()!!.zoom,true,
+                        R.drawable.logo,generaltag)
+                }else{
+                    Toast.makeText(this, "Remplissez tous les champs svp!", Toast.LENGTH_SHORT).show()
+                }
+
 
             }
 
@@ -516,7 +541,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                 for (i in 0..count - 1) {
                     var imageUri: Uri = data.clipData!!.getItemAt(i).uri
                     imageUri.let { imagesList.add(it) }
-
+                    Toast.makeText(this, "Images chargées !", Toast.LENGTH_SHORT).show()
                 }
             } else if (data.getData() != null) {
                 var imagePath: String? = data.data!!.path
@@ -723,7 +748,6 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             }
             builder.show()
 
-
             db.collection("lieux").document(currentMarker!!.tag.toString())
                 .get()
                 .addOnSuccessListener { document ->
@@ -734,22 +758,59 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                         dialogLayout.ouverturehour.text=document.data!!["heureOuv"].toString()
                         dialogLayout.fermertureHour.text=document.data!!["heureFerm"].toString()
 
-
                         var lieu = currentMarker!!.title.toString().replace(" ","").trim();
 
                         var path = "${lieu}${currentMarker!!.position.latitude}${currentMarker!!.position.longitude}"
 
-                        var imagesLieu = stokage.reference.child("imagesLieux").child(path)
-                            .child("1.jpg")
-
+                        var number = 0
                         //snack(path)
+                        Picasso.with(this@MainActivity)
+                            .load("https://firebasestorage.googleapis.com/v0/b/zaapp-4771f.appspot.com/o/" +
+                                    "imagesLieux%2F"+path+"%2F"+number
+                                    +"?alt=media&token=dd682537-8e23-4150-99e9-7b12e3ec9d14")
+                            .placeholder(android.R.drawable.ic_menu_camera)
+                            .into(dialogLayout.img)
 
-                        imagesLieu.downloadUrl.addOnSuccessListener {
-                            snack("sucess")
-                            dialogLayout.img.setImageURI(it)
-                        }.addOnFailureListener {
-                            snack("echec")
-                            // Handle any errors
+                        dialogLayout.suivant.setOnClickListener { view ->
+                            if (number<2){
+                                number++
+                                Picasso.with(this@MainActivity)
+                                    .load("https://firebasestorage.googleapis.com/v0/b/zaapp-4771f.appspot.com/o/" +
+                                            "imagesLieux%2F"+path+"%2F"+number
+                                            +"?alt=media&token=dd682537-8e23-4150-99e9-7b12e3ec9d14")
+                                    .placeholder(android.R.drawable.ic_menu_camera)
+                                    .into(dialogLayout.img)
+
+                            }else{
+                                number=0
+                                Picasso.with(this@MainActivity)
+                                    .load("https://firebasestorage.googleapis.com/v0/b/zaapp-4771f.appspot.com/o/" +
+                                            "imagesLieux%2F"+path+"%2F"+number
+                                            +"?alt=media&token=dd682537-8e23-4150-99e9-7b12e3ec9d14")
+                                    .placeholder(android.R.drawable.ic_menu_camera)
+                                    .into(dialogLayout.img)
+                            }
+
+                        }
+                        dialogLayout.precedent.setOnClickListener { view ->
+                            if (number>0){
+                                number--
+                                Picasso.with(this@MainActivity)
+                                    .load("https://firebasestorage.googleapis.com/v0/b/zaapp-4771f.appspot.com/o/" +
+                                            "imagesLieux%2F"+path+"%2F"+number
+                                            +"?alt=media&token=dd682537-8e23-4150-99e9-7b12e3ec9d14")
+                                    .placeholder(android.R.drawable.ic_menu_camera)
+                                    .into(dialogLayout.img)
+
+                            }else{
+                                number=2
+                                Picasso.with(this@MainActivity)
+                                    .load("https://firebasestorage.googleapis.com/v0/b/zaapp-4771f.appspot.com/o/" +
+                                            "imagesLieux%2F"+path+"%2F"+number
+                                            +"?alt=media&token=dd682537-8e23-4150-99e9-7b12e3ec9d14")
+                                    .placeholder(android.R.drawable.ic_menu_camera)
+                                    .into(dialogLayout.img)
+                            }
                         }
 
                         Log.d(TAG, "DocumentSnapshot data: ${document.data}")
@@ -760,7 +821,6 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                 .addOnFailureListener { exception ->
                     Log.w(TAG, "Error getting documents: ", exception)
                 }
-
 
             false
 

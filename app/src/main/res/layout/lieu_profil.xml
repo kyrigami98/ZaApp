@@ -22,7 +22,7 @@
                     android:layout_height="wrap_content"
                     android:clickable="true" app:srcCompat="@drawable/ic_arrow_left"
                     android:layout_gravity="start"
-                    android:id="@+id/floatingActionButton2" app:backgroundTint="#F5F3F3"
+                    android:id="@+id/precedent" app:backgroundTint="#F5F3F3"
                     android:layout_alignParentBottom="true" android:layout_marginBottom="140dp"
                     android:layout_marginStart="10dp"
                     android:layout_marginTop="152dp" android:layout_alignParentTop="true"/>
@@ -32,20 +32,22 @@
                     android:layout_height="wrap_content"
                     android:layout_gravity="end"
                     android:clickable="true" app:srcCompat="@drawable/ic_arrow_right"
-                    android:id="@+id/floatingActionButton3" app:backgroundTint="#F8F7F7"
+                    android:id="@+id/suivant" app:backgroundTint="#F8F7F7"
                     android:layout_marginEnd="10dp" android:layout_alignParentEnd="true"
                     android:layout_alignParentBottom="true" android:layout_marginBottom="140dp"
                     android:layout_marginTop="152dp" android:layout_alignParentTop="true"/>
             <LinearLayout
                     android:background="@drawable/background"
                     android:layout_width="match_parent"
-                    android:layout_height="350dp"
-                    android:orientation="vertical" android:id="@+id/images">
+                    android:layout_height="match_parent"
+                    android:orientation="vertical" android:id="@+id/images" android:layout_alignParentBottom="false"
+                    android:layout_marginBottom="0dp" android:layout_marginTop="0dp"
+                    android:layout_alignParentTop="false">
 
                 <ImageView
                         android:layout_width="match_parent"
                         android:layout_height="match_parent" app:srcCompat="@android:drawable/ic_menu_camera"
-                        android:id="@+id/img"/>
+                        android:id="@+id/img" android:scaleType="centerCrop"/>
             </LinearLayout>
 
         </RelativeLayout>
