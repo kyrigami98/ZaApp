@@ -41,9 +41,12 @@ class ConnectActivity : AppCompatActivity() {
 
         val sharedPref: SharedPreferences = getSharedPreferences("Log", Context.MODE_PRIVATE)
 
-        et_email1.setText( sharedPref.getString("lastEmail", null))
+        if (sharedPref.getString("resterConecter", null) == "true"){
+            et_email1.setText(sharedPref.getString("lastEmail", null))
+            switch1.isChecked = true
+        }
 
-        mAuth = FirebaseAuth.getInstance();
+        mAuth = FirebaseAuth.getInstance()
 
 
         login.setOnClickListener {
@@ -56,18 +59,21 @@ class ConnectActivity : AppCompatActivity() {
                                 if (task.isSuccessful) {
                                     // Sign in success, update UI with the signed-in user's information
                                     val user = mAuth.currentUser
-                                    snack("Connexion reussi!")
-
+                                    val editor: SharedPreferences.Editor = sharedPref.edit()
+                                    editor.putString("lastEmail", user!!.email.toString())
+                                    editor.commit()
                                     if (switch1.isChecked){
-                                        val editor: SharedPreferences.Editor = sharedPref.edit()
-                                        editor.putString("lastEmail", user!!.email.toString())
+                                        editor.putString("resterConecter", "true")
+                                        editor.commit()
+                                    }else{
+                                        editor.putString("resterConecter", "false")
                                         editor.commit()
                                     }
                                         val intent = Intent(this@ConnectActivity, MainActivity::class.java)
                                         startActivity(intent)
 
                                 } else {
-                                    snack("Champs invalides!")
+                                    snack("Identifiants invalides!")
                                     // If sign in fails, display a message to the user.
                                 }
                             }

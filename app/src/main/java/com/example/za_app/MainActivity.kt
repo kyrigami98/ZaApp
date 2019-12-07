@@ -6,6 +6,7 @@ import android.app.Activity
 import android.app.TimePickerDialog
 import android.content.Context
 import android.content.Intent
+import android.content.SharedPreferences
 import android.content.pm.PackageManager
 import android.os.Bundle
 import com.google.android.material.floatingactionbutton.FloatingActionButton
@@ -45,6 +46,7 @@ import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.storage.FirebaseStorage
 import com.google.firebase.storage.StorageReference
 import com.squareup.picasso.Picasso
+import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.app_bar_main.*
 import kotlinx.android.synthetic.main.content_main.*
 import kotlinx.android.synthetic.main.lieu_profil.view.*
@@ -82,8 +84,12 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     var heureOuv =""
     var heureFerm =""
 
+    var nom=""
+    var email=""
+
     var markerdrag = HashMap<Marker, Integer>()
 
+    /****************Databases**************************************************************/
     private val TAG = MainActivity::class.java.simpleName
     private var mStorageRef: StorageReference? = null
 
@@ -105,7 +111,6 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         val toolbar: Toolbar = findViewById(R.id.toolbar)
         setSupportActionBar(toolbar)
 
-        snack("Connecté")
         getcurentLocalisation()
         mainLoginBtn.hide()
         supprimer.hide()
@@ -127,6 +132,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                                 .add(lieuTab)
                             var imagesname = NomLieu.trim() + Mylatitude + Mylongtude;
                             sendImageDatabase(imagesname.trim())
+
                             snack("Ajouter avec succès!")
                             googleMap!!.clear()
                             supprimer.hide()
@@ -885,6 +891,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 /**********MENU AND OPTIONS********************************************************************************/
 
     override fun onBackPressed() {
+
         val drawerLayout: DrawerLayout = findViewById(R.id.drawer_layout)
         if (drawerLayout.isDrawerOpen(GravityCompat.START)) {
             drawerLayout.closeDrawer(GravityCompat.START)
@@ -895,6 +902,26 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
         // Inflate the menu; this adds items to the action bar if it is present.
+
+        val userLog: SharedPreferences = getSharedPreferences("Log", Context.MODE_PRIVATE)
+        email = userLog.getString("lastEmail", null).toString()
+
+        db.collection("users").document(email)
+            .get()
+            .addOnSuccessListener { documents ->
+                if (documents != null) {
+                    nom = documents.data!!["nomprenom"].toString()
+                    this.nav_view.profil.nomProfil.text = documents.data!!["nomprenom"].toString()
+                } else {
+                    nom = "vide"
+                }
+            }
+            .addOnFailureListener { exception ->
+                Log.w(TAG, "Error getting documents: ", exception)
+            }
+
+        this.nav_view.emailProfil.text = email
+
         menuInflater.inflate(R.menu.main, menu)
         return true
     }
