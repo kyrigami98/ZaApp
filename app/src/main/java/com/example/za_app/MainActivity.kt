@@ -188,7 +188,8 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
                     addMarkerMap(
                         Mylatitude, Mylongtude, "Maintenez le marqueur pour le déplacer",
-                        "Cliquez sur le crayon pour éditer!", 7.0f, true, R.drawable.logo,generaltag
+                        "Cliquez sur le crayon pour éditer!", 7.0f, true, R.drawable.logo,
+                        "editable"
                     )
 
                     googleMap!!.uiSettings.setScrollGesturesEnabled(false);
@@ -225,7 +226,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                     addMarkerMap(GetCameraCenter()!!.target.latitude,GetCameraCenter()!!.target.longitude,
                         "Maintenez le marqueur pour le déplacer", "Cliquez sur le crayon pour éditer!",
                         GetCameraCenter()!!.zoom,
-                        true,R.drawable.logo,generaltag)
+                        true,R.drawable.logo,"editable")
 
                     googleMap!!.uiSettings.setScrollGesturesEnabled(false);
                     supprimer.show()
@@ -737,6 +738,9 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
         googleMap!!.setOnInfoWindowClickListener {
 
+            if(it.tag == "editable"){
+                mainLoginBtn.callOnClick()
+            }else{
 
             val builder = AlertDialog.Builder(this@MainActivity)
             val inflater = layoutInflater
@@ -824,6 +828,8 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
             false
 
+            }
+
         }
 
         googleMap!!.setMinZoomPreference(6.0f)
@@ -867,7 +873,10 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                 .snippet(info)
                 .icon(BitmapDescriptorFactory.fromBitmap(resizeImage(70,70,image)))
         )
-        perth.showInfoWindow()
+
+        if(tag == "editable"){
+            perth.showInfoWindow()
+        }
         perth.tag = tag
         googleMap!!.moveCamera(CameraUpdateFactory.newLatLngZoom(PERTH, zoomLevel))
 
@@ -921,10 +930,5 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         drawerLayout.closeDrawer(GravityCompat.START)
         return true
     }
-
-
-
-
-
 
 }
