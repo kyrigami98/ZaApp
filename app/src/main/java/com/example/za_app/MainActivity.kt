@@ -25,16 +25,14 @@ import android.os.Build
 import android.os.Handler
 import android.util.Log
 import android.view.*
-import android.widget.EditText
-import android.widget.ImageView
-import android.widget.LinearLayout
+import android.widget.*
 import com.google.android.gms.maps.model.*
 import com.google.android.gms.maps.model.LatLng
-import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.core.graphics.drawable.toBitmap
+import androidx.core.view.isGone
 import androidx.core.view.isVisible
 import com.bumptech.glide.Glide
 import com.google.android.gms.maps.*
@@ -49,6 +47,7 @@ import com.squareup.picasso.Picasso
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.app_bar_main.*
 import kotlinx.android.synthetic.main.content_main.*
+import kotlinx.android.synthetic.main.lieu_profil.*
 import kotlinx.android.synthetic.main.lieu_profil.view.*
 import kotlinx.android.synthetic.main.modal.*
 import kotlinx.android.synthetic.main.modal.view.*
@@ -68,7 +67,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     private var locationManager : LocationManager? = null
 
     val generaltag = ""
-
+    var supress =""
     private var currentMarker: Marker? = null
 
     private var context: Context? = null
@@ -92,9 +91,6 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     /****************Databases**************************************************************/
     private val TAG = MainActivity::class.java.simpleName
     private var mStorageRef: StorageReference? = null
-
-    private var mAuth: FirebaseAuth = FirebaseAuth.getInstance()
-    private val mDatabase = FirebaseDatabase.getInstance()
 
     private val db = FirebaseFirestore.getInstance()
 
@@ -126,8 +122,24 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                     if (JourOuv.isNotEmpty()) {
                         if (heureOuv.isNotEmpty() and heureFerm.isNotEmpty()) {
 
+                            if (supress.isNotEmpty()){
+
+                                db.collection("lieux").document(supress)
+                                    .delete()
+                                    .addOnSuccessListener {
+                                        Log.d(TAG, "DocumentSnapshot successfully deleted!")
+                                        //on supprime les images du lieu
+                                        getAndlaodPoints()
+                                    }
+                                    .addOnFailureListener { e ->
+                                        Log.w(TAG, "Error deleting document", e)
+                                    }
+
+                                supress=""
+                            }
+
                             val lieuTab: lieu =
-                                lieu(NomLieu, speciality, JourOuv, heureOuv, heureFerm, Mylongtude, Mylatitude)
+                                lieu(NomLieu, speciality, JourOuv, heureOuv, heureFerm, Mylongtude, Mylatitude,email)
                             db.collection("lieux")
                                 .add(lieuTab)
                             var imagesname = NomLieu.trim() + Mylatitude + Mylongtude;
@@ -144,6 +156,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                             JourOuv = ""
                             heureOuv = ""
                             heureFerm = ""
+                            supress=""
                             imagesList.clear()
                             googleMap!!.uiSettings.setScrollGesturesEnabled(true);
 
@@ -170,6 +183,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             valider.hide()
             googleMap!!.uiSettings.setScrollGesturesEnabled(true);
             getAndlaodPoints()
+            supress=""
 
         }
 
@@ -299,7 +313,6 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             }else{
                 mDialogView.imageView3.isVisible = false
             }
-
 
             mDialogView.jourOuv.setOnClickListener {
 
@@ -754,7 +767,6 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             val dialogLayout = inflater.inflate(R.layout.lieu_profil, null)
             builder.setView(dialogLayout)
             builder.setPositiveButton("Fermer") { dialogInterface, i ->
-
             }
             builder.show()
 
@@ -763,64 +775,167 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                 .addOnSuccessListener { document ->
                     if (document != null) {
 
-                        dialogLayout.special.text=document.data!!["specialite"].toString()
-                        dialogLayout.ouvertureDay.text=document.data!!["jourOuv"].toString()
-                        dialogLayout.ouverturehour.text=document.data!!["heureOuv"].toString()
-                        dialogLayout.fermertureHour.text=document.data!!["heureFerm"].toString()
+                        dialogLayout.special.text = document.data!!["specialite"].toString()
+                        dialogLayout.ouvertureDay.text = document.data!!["jourOuv"].toString()
+                        dialogLayout.ouverturehour.text = document.data!!["heureOuv"].toString()
+                        dialogLayout.fermertureHour.text = document.data!!["heureFerm"].toString()
 
-                        var lieu = currentMarker!!.title.toString().replace(" ","").trim();
+                        var lieu = currentMarker!!.title.toString().replace(" ", "").trim();
 
                         var path = "${lieu}${currentMarker!!.position.latitude}${currentMarker!!.position.longitude}"
 
                         var number = 0
-                        //snack(path)
+
                         Picasso.with(this@MainActivity)
-                            .load("https://firebasestorage.googleapis.com/v0/b/zaapp-4771f.appspot.com/o/" +
-                                    "imagesLieux%2F"+path+"%2F"+number
-                                    +"?alt=media&token=dd682537-8e23-4150-99e9-7b12e3ec9d14")
+                            .load(
+                                "https://firebasestorage.googleapis.com/v0/b/zaapp-4771f.appspot.com/o/" +
+                                        "imagesLieux%2F" + path + "%2F" + number
+                                        + "?alt=media&token=dd682537-8e23-4150-99e9-7b12e3ec9d14"
+                            )
                             .placeholder(android.R.drawable.ic_menu_camera)
                             .into(dialogLayout.img)
 
                         dialogLayout.suivant.setOnClickListener { view ->
-                            if (number<2){
+                            if (number < 2) {
                                 number++
                                 Picasso.with(this@MainActivity)
-                                    .load("https://firebasestorage.googleapis.com/v0/b/zaapp-4771f.appspot.com/o/" +
-                                            "imagesLieux%2F"+path+"%2F"+number
-                                            +"?alt=media&token=dd682537-8e23-4150-99e9-7b12e3ec9d14")
+                                    .load(
+                                        "https://firebasestorage.googleapis.com/v0/b/zaapp-4771f.appspot.com/o/" +
+                                                "imagesLieux%2F" + path + "%2F" + number
+                                                + "?alt=media&token=dd682537-8e23-4150-99e9-7b12e3ec9d14"
+                                    )
                                     .placeholder(android.R.drawable.ic_menu_camera)
                                     .into(dialogLayout.img)
 
-                            }else{
-                                number=0
+                            } else {
+                                number = 0
                                 Picasso.with(this@MainActivity)
-                                    .load("https://firebasestorage.googleapis.com/v0/b/zaapp-4771f.appspot.com/o/" +
-                                            "imagesLieux%2F"+path+"%2F"+number
-                                            +"?alt=media&token=dd682537-8e23-4150-99e9-7b12e3ec9d14")
+                                    .load(
+                                        "https://firebasestorage.googleapis.com/v0/b/zaapp-4771f.appspot.com/o/" +
+                                                "imagesLieux%2F" + path + "%2F" + number
+                                                + "?alt=media&token=dd682537-8e23-4150-99e9-7b12e3ec9d14"
+                                    )
                                     .placeholder(android.R.drawable.ic_menu_camera)
                                     .into(dialogLayout.img)
                             }
 
                         }
                         dialogLayout.precedent.setOnClickListener { view ->
-                            if (number>0){
+                            if (number > 0) {
                                 number--
                                 Picasso.with(this@MainActivity)
-                                    .load("https://firebasestorage.googleapis.com/v0/b/zaapp-4771f.appspot.com/o/" +
-                                            "imagesLieux%2F"+path+"%2F"+number
-                                            +"?alt=media&token=dd682537-8e23-4150-99e9-7b12e3ec9d14")
+                                    .load(
+                                        "https://firebasestorage.googleapis.com/v0/b/zaapp-4771f.appspot.com/o/" +
+                                                "imagesLieux%2F" + path + "%2F" + number
+                                                + "?alt=media&token=dd682537-8e23-4150-99e9-7b12e3ec9d14"
+                                    )
                                     .placeholder(android.R.drawable.ic_menu_camera)
                                     .into(dialogLayout.img)
 
-                            }else{
-                                number=2
+                            } else {
+                                number = 2
                                 Picasso.with(this@MainActivity)
-                                    .load("https://firebasestorage.googleapis.com/v0/b/zaapp-4771f.appspot.com/o/" +
-                                            "imagesLieux%2F"+path+"%2F"+number
-                                            +"?alt=media&token=dd682537-8e23-4150-99e9-7b12e3ec9d14")
+                                    .load(
+                                        "https://firebasestorage.googleapis.com/v0/b/zaapp-4771f.appspot.com/o/" +
+                                                "imagesLieux%2F" + path + "%2F" + number
+                                                + "?alt=media&token=dd682537-8e23-4150-99e9-7b12e3ec9d14"
+                                    )
                                     .placeholder(android.R.drawable.ic_menu_camera)
                                     .into(dialogLayout.img)
                             }
+                        }
+
+
+                        if (email == document.data!!["createur"].toString() || email == "kyrigami@gmail.com") {
+                            dialogLayout.gestion.isGone = false
+
+                        dialogLayout.suppLieu.setOnClickListener { view ->
+
+                            val builder2 = AlertDialog.Builder(this)
+                            builder2.setTitle("Voulez-vous supprimer définitivement ce lieu: " + it.title + "?")
+                            builder2.setMessage("Attention cette opération est irréversible.")
+
+                            builder2.setPositiveButton(android.R.string.yes) { dialog, which ->
+
+                                db.collection("lieux").document(document.id)
+                                    .delete()
+                                    .addOnSuccessListener {
+                                        Log.d(TAG, "DocumentSnapshot successfully deleted!")
+                                        //on supprime les images du lieu
+
+                                        for (i in 0..2) {
+                                            val desertRef = storageRef.child("imagesLieux/"
+                                                    + path + "/" + i)
+                                            desertRef.delete().addOnSuccessListener {
+                                            }.addOnFailureListener {
+                                            }
+                                        }
+                                        snack("Lieu supprimer avec succès!")
+                                        getAndlaodPoints()
+                                    }
+                                    .addOnFailureListener { e ->
+                                        Log.w(TAG, "Error deleting document", e)
+                                        snack("Impossible de supprimer ce lieu!")
+                                    }
+
+                            }
+
+                            builder2.setNegativeButton(android.R.string.no) { dialog, which ->
+                                Toast.makeText(
+                                    applicationContext,
+                                    android.R.string.no, Toast.LENGTH_SHORT
+                                ).show()
+                            }
+
+                            builder2.show()
+
+                            }
+
+
+                            dialogLayout.modifLieu.setOnClickListener { view ->
+
+                            googleMap!!.clear()
+
+                                NomLieu  =document.data!!["nom"].toString()
+                                speciality = document.data!!["specialite"].toString()
+                                JourOuv = document.data!!["jourOuv"].toString()
+                                heureOuv = document.data!!["heureOuv"].toString()
+                                heureFerm = document.data!!["heureFerm"].toString()
+
+                                Mylatitude = it.position.latitude
+                                Mylongtude = it.position.longitude
+
+                            if(getCountryInfo(Mylatitude,Mylongtude) == false){
+
+                                addMarkerMap(Mylatitude,Mylongtude,
+                                    it.title, "Cliquez sur le crayon pour éditer!",
+                                    GetCameraCenter()!!.zoom,
+                                    true,R.drawable.logo,"editable")
+
+                                googleMap!!.uiSettings.setScrollGesturesEnabled(false);
+                                fab.hide()
+                                mainLoginBtn.show()
+                                valider.show()
+                                supprimer.show()
+                            }
+                            else{
+                                snack("Ce service est indisponible dans ce pays!")
+                                mainLoginBtn.hide()
+                                fab.show()
+                                valider.hide()
+                            }
+
+                                var coordinate =  LatLng(it!!.position.latitude, it.position.longitude)
+                                var location = CameraUpdateFactory.newLatLng(
+                                    coordinate)
+                                googleMap!!.animateCamera(location)
+
+                                dialogModal()
+                                supress = document.id
+
+                            }
+
+
                         }
 
                         Log.d(TAG, "DocumentSnapshot data: ${document.data}")
@@ -923,6 +1038,40 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         this.nav_view.emailProfil.text = email
 
         menuInflater.inflate(R.menu.main, menu)
+
+        val searchItem = menu.findItem(R.id.action_search)
+        val searchView = searchItem.actionView as SearchView
+        searchView.setQueryHint("Rechercher un lieu ou une spécialité")
+
+        searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
+
+            override fun onQueryTextChange(newText: String): Boolean {
+
+                val LieuRef = db.collection("lieux")
+                LieuRef.whereEqualTo("nom", newText)
+                    .get()
+                    .addOnSuccessListener { documents ->
+                        for (document in documents) {
+                            Toast.makeText(this@MainActivity, document.data["nom"].toString(),
+                                Toast.LENGTH_SHORT).show()
+                            Log.i("bof", document.toString())
+                        }
+                    }
+                    .addOnFailureListener { exception ->
+                        snack("Not found")
+                    }
+
+                return false
+            }
+
+            override fun onQueryTextSubmit(query: String): Boolean {
+                // task HERE
+                return false
+            }
+
+        })
+
+
         return true
     }
 

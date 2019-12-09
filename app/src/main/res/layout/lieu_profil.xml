@@ -172,11 +172,45 @@
                 android:fontFamily="@font/roboto"
                 android:layout_marginLeft="20dp"
                 android:layout_marginRight="20dp"
-                android:layout_marginBottom="30dp"
+                android:layout_marginBottom="5dp"
                 android:textColor="@android:color/white"
                 android:text="Allez maintenant" android:backgroundTint="#FC7B38"
                 android:textStyle="bold" android:layout_centerVertical="true"
                 android:layout_centerHorizontal="true" android:layout_marginTop="20dp"/>
+        <LinearLayout
+                android:orientation="horizontal"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" android:gravity="center" android:id="@+id/gestion"
+                android:visibility="gone" tools:visibility="gone">
+            <Button
+                    android:id="@+id/suppLieu"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:background="@drawable/btn_custom"
+                    android:fontFamily="@font/roboto"
+                    android:layout_marginLeft="20dp"
+                    android:layout_marginRight="20dp"
+                    android:layout_marginBottom="30dp"
+                    android:textColor="#FF5722"
+                    android:text="Supprimer le lieu" android:backgroundTint="#FFFFFF"
+                    android:textStyle="bold" android:layout_centerVertical="true"
+                    android:layout_centerHorizontal="true" android:layout_marginTop="20dp"
+                    android:layout_alignParentStart="true" android:layout_weight="1"/>
+            <Button
+                    android:id="@+id/modifLieu"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:background="@drawable/btn_custom"
+                    android:fontFamily="@font/roboto"
+                    android:layout_marginLeft="20dp"
+                    android:layout_marginRight="20dp"
+                    android:layout_marginBottom="30dp"
+                    android:textColor="#FF5722"
+                    android:text="Modifier le lieu" android:backgroundTint="#FFFFFF"
+                    android:textStyle="bold" android:layout_centerVertical="true"
+                    android:layout_centerHorizontal="true" android:layout_marginTop="20dp"
+                    android:layout_alignParentStart="true" android:layout_weight="1"/>
+        </LinearLayout>
 
     </LinearLayout>
 
