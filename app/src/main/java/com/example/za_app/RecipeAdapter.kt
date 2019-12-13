@@ -10,14 +10,7 @@ import android.widget.ImageView
 import android.widget.TextView
 import com.squareup.picasso.Picasso
 
-class lieux{
-    var nom = ""
-    var specialite =""
-    var longitude = ""
-    var latitude =""
-}
-
-class CustomAdapter(private val context: Activity, private val lieux: Array<String>)
+class CustomAdapter(private val context: Activity, private val lieux: ArrayList<lieu>)
     : BaseAdapter() {
     override fun getView(p0: Int, p1: View?, p2: ViewGroup?): View {
         val inflater = context.layoutInflater
@@ -26,9 +19,22 @@ class CustomAdapter(private val context: Activity, private val lieux: Array<Stri
         val title = rowView.findViewById<TextView>(R.id.recipe_list_title)
         val description= rowView.findViewById<TextView>(R.id.description)
 
-        imageView.setImageResource(R.drawable.logo)
-        title.text = lieux[p0]
-        description.text = lieux[p0]
+        title.text = lieux[p0].nom
+        description.text = lieux[p0].specialite
+
+        var lieu = lieux[p0]!!.nom.replace(" ", "").trim();
+        var path = "${lieu}${lieux[p0]!!.latitude}${lieux[p0]!!.longitude}"
+
+        var number = 0
+
+        Picasso.with(context)
+            .load(
+                "https://firebasestorage.googleapis.com/v0/b/zaapp-4771f.appspot.com/o/" +
+                        "imagesLieux%2F" + path + "%2F" + number
+                        + "?alt=media&token=dd682537-8e23-4150-99e9-7b12e3ec9d14"
+            )
+            .placeholder(R.drawable.logo)
+            .into(imageView)
 
 
         return rowView

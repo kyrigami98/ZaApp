@@ -77,6 +77,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     private var context: Context? = null
     lateinit var imagePath: String
     var imagesList: MutableList<Uri> = arrayListOf()
+    var listLieux: ArrayList<lieu> = arrayListOf()
 
     var Mylongtude = 2.315834
     var Mylatitude = 9.0578879005793
@@ -1027,21 +1028,59 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
     }
 
-    fun search(things : String){
+    fun search(things : String): MutableList<lieu> {
 
+        listLieux.clear()
         val LieuRef = db.collection("lieux")
         LieuRef.whereEqualTo("nom", things)
+            .whereGreaterThanOrEqualTo("nom", things)
+            //.whereEqualTo("specialite", things)
             .get()
             .addOnSuccessListener { documents ->
-                for (document in documents) {
-                    Toast.makeText(this@MainActivity, document.data["specialite"].toString(),
-                        Toast.LENGTH_SHORT).show()
-                    Log.i("bof", document.data["nom"] as String)
+                if (documents.isEmpty){
+                    LieuRef.whereEqualTo("specialite", things)
+                        .whereGreaterThanOrEqualTo("specialite", things)
+                        .get()
+                        .addOnSuccessListener { documents ->
+                            for (document in documents) {
+                                var lieuxData = lieu(
+                                    document.data["nom"] as String,
+                                    document.data["specialite"] as String,
+                                    document.data["jourOuv"] as String,
+                                    document.data["heureOuv"] as String,
+                                    document.data["heureFerm"] as String,
+                                    document.data["longitude"] as Double,
+                                    document.data["latitude"] as Double,
+                                    document.data["createur"] as String
+                                )
+                                listLieux.add(lieuxData)
+                            }
+
+                        }
+                        .addOnFailureListener { exception ->
+
+                        }
+                }else {
+                    for (document in documents) {
+                        var lieuxData = lieu(
+                            document.data["nom"] as String,
+                            document.data["specialite"] as String,
+                            document.data["jourOuv"] as String,
+                            document.data["heureOuv"] as String,
+                            document.data["heureFerm"] as String,
+                            document.data["longitude"] as Double,
+                            document.data["latitude"] as Double,
+                            document.data["createur"] as String
+                        )
+                        listLieux.add(lieuxData)
+                    }
                 }
             }
             .addOnFailureListener { exception ->
 
             }
+
+        return listLieux
 
     }
 
@@ -1057,10 +1096,24 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         }
         builder3.show()
 
+        val lv = dialogLayout3.findViewById<ListView>(R.id.recipe_list_view)
+        lv.transcriptMode = ListView.TRANSCRIPT_MODE_NORMAL
+        lv.isStackFromBottom = true
+        val prodAdapter = CustomAdapter(this@MainActivity, listLieux)
+
+        lv.adapter = prodAdapter
+
+        lv.setOnItemClickListener { parent, view, position, id ->
+            Toast.makeText(this, "Anda memilih: ${lv[position]}",Toast.LENGTH_SHORT).show()
+        }
+
         dialogLayout3.searchbar.addTextChangedListener(object : TextWatcher {
 
             override fun afterTextChanged(s: Editable) {
-            search(s.toString())
+
+                search(s.toString())
+                prodAdapter.notifyDataSetChanged()
+
             }
 
             override fun beforeTextChanged(s: CharSequence, start: Int,
@@ -1074,18 +1127,6 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             }
         })
 
-
-        var prodsList = arrayOf("Melbourne", "Vienna", "Vancouver", "Toronto", "Calgary", "Adelaide", "Perth", "Auckland", "Helsinki", "Hamburg", "Munich", "New York", "Sydney", "Paris", "Cape Town", "Barcelona", "London", "Bangkok")
-
-        val lv = dialogLayout3.findViewById<ListView>(R.id.recipe_list_view)
-
-        val prodAdapter = CustomAdapter(this@MainActivity, prodsList)
-
-        lv.adapter = prodAdapter
-
-        lv.setOnItemClickListener { parent, view, position, id ->
-            Toast.makeText(this, "Anda memilih: ${lv[position]}",Toast.LENGTH_SHORT).show()
-        }
 
     }
 
