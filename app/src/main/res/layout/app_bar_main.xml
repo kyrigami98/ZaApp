@@ -21,17 +21,19 @@
 
     </com.google.android.material.appbar.AppBarLayout>
 
+
     <include layout="@layout/content_main" android:id="@+id/include"/>
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
             android:id="@+id/fab"
-            android:layout_width="69dp"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_gravity="bottom|end"
+            android:layout_gravity="bottom|center"
             android:layout_margin="@dimen/fab_margin"
             app:srcCompat="@android:drawable/ic_menu_myplaces" android:backgroundTint="@color/colorPrimary"
             app:fabSize="auto"
-            android:backgroundTintMode="multiply"/>
+            android:backgroundTintMode="multiply" app:layout_anchorGravity="bottom|center"
+            app:layout_anchor="@+id/include"/>
     <com.google.android.material.floatingactionbutton.FloatingActionButton
             android:id="@+id/mainLoginBtn"
             android:layout_width="69dp"

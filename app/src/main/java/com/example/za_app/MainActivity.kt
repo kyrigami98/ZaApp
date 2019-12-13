@@ -23,6 +23,8 @@ import android.location.*
 import android.net.Uri
 import android.os.Build
 import android.os.Handler
+import android.text.Editable
+import android.text.TextWatcher
 import android.util.Log
 import android.view.*
 import android.widget.*
@@ -32,6 +34,7 @@ import androidx.appcompat.app.AlertDialog
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.core.graphics.drawable.toBitmap
+import androidx.core.view.get
 import androidx.core.view.isGone
 import androidx.core.view.isVisible
 import com.bumptech.glide.Glide
@@ -53,6 +56,7 @@ import kotlinx.android.synthetic.main.modal.*
 import kotlinx.android.synthetic.main.modal.view.*
 import kotlinx.android.synthetic.main.nav_header_main.*
 import kotlinx.android.synthetic.main.nav_header_main.view.*
+import kotlinx.android.synthetic.main.search.view.*
 import java.nio.ByteBuffer
 import java.util.*
 
@@ -288,7 +292,27 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
          dialogModal()
 
+/*
+        searchbar.addTextChangedListener(object : TextWatcher {
+
+            override fun afterTextChanged(s: Editable) {
+                search(s.toString())
+            }
+
+            override fun beforeTextChanged(s: CharSequence, start: Int,
+                                           count: Int, after: Int) {
+            }
+
+            override fun onTextChanged(s: CharSequence, start: Int,
+                                       before: Int, count: Int) {
+            }
+        })
+*/
+
+
+
     }
+
 
     fun dialogModal(){
         //button click to show dialog
@@ -1003,6 +1027,69 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
     }
 
+    fun search(things : String){
+
+        val LieuRef = db.collection("lieux")
+        LieuRef.whereEqualTo("nom", things)
+            .get()
+            .addOnSuccessListener { documents ->
+                for (document in documents) {
+                    Toast.makeText(this@MainActivity, document.data["specialite"].toString(),
+                        Toast.LENGTH_SHORT).show()
+                    Log.i("bof", document.data["nom"] as String)
+                }
+            }
+            .addOnFailureListener { exception ->
+
+            }
+
+    }
+
+
+    fun searchModal(){
+
+        val builder3 = AlertDialog.Builder(this@MainActivity)
+        val inflater = layoutInflater
+        builder3.setTitle("")
+        val dialogLayout3 = inflater.inflate(R.layout.search, null)
+        builder3.setView(dialogLayout3)
+        builder3.setPositiveButton("Fermer") { dialogInterface, i ->
+        }
+        builder3.show()
+
+        dialogLayout3.searchbar.addTextChangedListener(object : TextWatcher {
+
+            override fun afterTextChanged(s: Editable) {
+            search(s.toString())
+            }
+
+            override fun beforeTextChanged(s: CharSequence, start: Int,
+                                           count: Int, after: Int) {
+            }
+
+            override fun onTextChanged(s: CharSequence, start: Int,
+                                       before: Int, count: Int) {
+
+
+            }
+        })
+
+
+        var prodsList = arrayOf("Melbourne", "Vienna", "Vancouver", "Toronto", "Calgary", "Adelaide", "Perth", "Auckland", "Helsinki", "Hamburg", "Munich", "New York", "Sydney", "Paris", "Cape Town", "Barcelona", "London", "Bangkok")
+
+        val lv = dialogLayout3.findViewById<ListView>(R.id.recipe_list_view)
+
+        val prodAdapter = CustomAdapter(this@MainActivity, prodsList)
+
+        lv.adapter = prodAdapter
+
+        lv.setOnItemClickListener { parent, view, position, id ->
+            Toast.makeText(this, "Anda memilih: ${lv[position]}",Toast.LENGTH_SHORT).show()
+        }
+
+    }
+
+
 /**********MENU AND OPTIONS********************************************************************************/
 
     override fun onBackPressed() {
@@ -1039,39 +1126,6 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
         menuInflater.inflate(R.menu.main, menu)
 
-        val searchItem = menu.findItem(R.id.action_search)
-        val searchView = searchItem.actionView as SearchView
-        searchView.setQueryHint("Rechercher un lieu ou une spécialité")
-
-        searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
-
-            override fun onQueryTextChange(newText: String): Boolean {
-
-                val LieuRef = db.collection("lieux")
-                LieuRef.whereEqualTo("nom", newText)
-                    .get()
-                    .addOnSuccessListener { documents ->
-                        for (document in documents) {
-                            Toast.makeText(this@MainActivity, document.data["nom"].toString(),
-                                Toast.LENGTH_SHORT).show()
-                            Log.i("bof", document.toString())
-                        }
-                    }
-                    .addOnFailureListener { exception ->
-                        snack("Not found")
-                    }
-
-                return false
-            }
-
-            override fun onQueryTextSubmit(query: String): Boolean {
-                // task HERE
-                return false
-            }
-
-        })
-
-
         return true
     }
 
@@ -1080,7 +1134,15 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         // automatically handle clicks on the Home/Up button, so long
         // as you specify a parent activity in AndroidManifest.xml.
         return when (item.itemId) {
-            R.id.action_settings -> true
+            R.id.action_settings -> {
+                true
+            }
+
+            R.id.action_search ->{
+                searchModal()
+                true
+            }
+
             else -> super.onOptionsItemSelected(item)
         }
     }
@@ -1105,6 +1167,34 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         val drawerLayout: DrawerLayout = findViewById(R.id.drawer_layout)
         drawerLayout.closeDrawer(GravityCompat.START)
         return true
+    }
+
+    override fun onStop() {
+        super.onStop()
+    }
+
+    override fun onAttachedToWindow() {
+        super.onAttachedToWindow()
+    }
+
+    override fun onDetachedFromWindow() {
+        super.onDetachedFromWindow()
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+    }
+
+    override fun onPause() {
+        super.onPause()
+    }
+
+    override fun onRestart() {
+        super.onRestart()
+    }
+
+    override fun onResume() {
+        super.onResume()
     }
 
 }
