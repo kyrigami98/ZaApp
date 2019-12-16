@@ -293,24 +293,6 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
          dialogModal()
 
-/*
-        searchbar.addTextChangedListener(object : TextWatcher {
-
-            override fun afterTextChanged(s: Editable) {
-                search(s.toString())
-            }
-
-            override fun beforeTextChanged(s: CharSequence, start: Int,
-                                           count: Int, after: Int) {
-            }
-
-            override fun onTextChanged(s: CharSequence, start: Int,
-                                       before: Int, count: Int) {
-            }
-        })
-*/
-
-
 
     }
 
@@ -487,7 +469,9 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                     addMarkerMap(
                         document.data["latitude"] as Double, document.data["longitude"] as Double,
                         document.data["nom"] as String,
-                        document.data["specialite"] as String, 7.0f, false, R.drawable.logo,document.id
+                        document.data["specialite"].toString().plus(" ")
+                            .plus("(Voir details)"),
+                        7.0f, false, R.drawable.logo,document.id
                     )
 
                 }
@@ -513,7 +497,8 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                         addMarkerMap(
                             dc.document.data["latitude"] as Double, dc.document.data["longitude"] as Double,
                             dc.document.data["nom"] as String,
-                            dc.document.data["specialite"] as String, 7.0f, false, R.drawable.logo,
+                            dc.document.data["specialite"].toString().plus(" ")
+                                .plus("(Voir details)"), 7.0f, false, R.drawable.logo,
                             dc.document.id
                         )
                     }
@@ -793,7 +778,8 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             builder.setView(dialogLayout)
             builder.setPositiveButton("Fermer") { dialogInterface, i ->
             }
-            builder.show()
+
+              val mAlertDialog2 = builder.show()
 
             db.collection("lieux").document(currentMarker!!.tag.toString())
                 .get()
@@ -896,12 +882,14 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                                             }
                                         }
                                         snack("Lieu supprimer avec succès!")
+                                        mAlertDialog2.dismiss()
                                         getAndlaodPoints()
                                     }
                                     .addOnFailureListener { e ->
                                         Log.w(TAG, "Error deleting document", e)
                                         snack("Impossible de supprimer ce lieu!")
                                     }
+
 
                             }
 
@@ -929,6 +917,9 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
                                 Mylatitude = it.position.latitude
                                 Mylongtude = it.position.longitude
+
+                                mAlertDialog2.dismiss()
+                                mainLoginBtn.performClick()
 
                             if(getCountryInfo(Mylatitude,Mylongtude) == false){
 
