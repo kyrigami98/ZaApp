@@ -36,7 +36,6 @@ class CustomAdapter(private val context: Activity, private val lieux: ArrayList<
             .placeholder(R.drawable.logo)
             .into(imageView)
 
-
         return rowView
     }
 

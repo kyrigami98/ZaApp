@@ -57,6 +57,7 @@ import kotlinx.android.synthetic.main.modal.view.*
 import kotlinx.android.synthetic.main.nav_header_main.*
 import kotlinx.android.synthetic.main.nav_header_main.view.*
 import kotlinx.android.synthetic.main.search.view.*
+import kotlinx.android.synthetic.main.user_profil.view.*
 import java.nio.ByteBuffer
 import java.util.*
 
@@ -87,9 +88,12 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     var JourOuv =""
     var heureOuv =""
     var heureFerm =""
+    var budget = ""
 
+    var pass =""
     var nom=""
     var email=""
+    var telephone =""
 
     var markerdrag = HashMap<Marker, Integer>()
 
@@ -122,8 +126,9 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         mStorageRef = FirebaseStorage.getInstance().getReference();
 
         valider.setOnClickListener { view ->
-            if(getCountryInfo(Mylatitude,Mylongtude) == false) {
+            if(!getCountryInfo(Mylatitude,Mylongtude)) {
                 if (NomLieu.isNotEmpty() and speciality.isNotEmpty()) {
+                    if (budget.isNotEmpty()) {
                     if (JourOuv.isNotEmpty()) {
                         if (heureOuv.isNotEmpty() and heureFerm.isNotEmpty()) {
 
@@ -144,7 +149,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                             }
 
                             val lieuTab: lieu =
-                                lieu(NomLieu, speciality, JourOuv, heureOuv, heureFerm, Mylongtude, Mylatitude,email)
+                                lieu(NomLieu, speciality,budget, JourOuv, heureOuv, heureFerm, Mylongtude, Mylatitude,email)
                             db.collection("lieux")
                                 .add(lieuTab)
                             var imagesname = NomLieu.trim() + Mylatitude + Mylongtude;
@@ -158,6 +163,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                             valider.hide()
                             NomLieu = ""
                             speciality = ""
+                            budget = ""
                             JourOuv = ""
                             heureOuv = ""
                             heureFerm = ""
@@ -170,6 +176,9 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                         }
                     } else {
                         snack("Veillez choisir les jours d'ouvertures!")
+                    }
+                    } else {
+                        snack("Veillez renseigner un budget minimum!")
                     }
                 } else {
                     snack("Veillez saisir le nom du lieu et les specialités!")
@@ -311,6 +320,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
             mDialogView.dialogNameEt.setText(NomLieu)
             mDialogView.specialite.setText(speciality)
+            mDialogView.budget.setText(budget)
             mDialogView.jourOuv.setText(JourOuv)
             mDialogView.heureDeb.setText(heureOuv)
             mDialogView.heureFerm.setText(heureFerm)
@@ -416,10 +426,11 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                 //get text from EditTexts of custom layout
                 if(mDialogView.dialogNameEt.text.isNotEmpty() and mDialogView.specialite.text.isNotEmpty() and
                     mDialogView.jourOuv.text.isNotEmpty() and mDialogView.heureDeb.text.isNotEmpty() and
-                    mDialogView.heureFerm.text.isNotEmpty() ){
+                    mDialogView.heureFerm.text.isNotEmpty() and mDialogView.budget.text.isNotEmpty() ){
 
                     NomLieu = mDialogView.dialogNameEt.text.toString()
                     speciality = mDialogView.specialite.text.toString()
+                    budget = mDialogView.budget.text.toString()
                     JourOuv = mDialogView.jourOuv.text.toString()
                     heureOuv = mDialogView.heureDeb.text.toString()
                     heureFerm = mDialogView.heureFerm.text.toString()
@@ -432,6 +443,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                         NomLieu,speciality,
                         GetCameraCenter()!!.zoom,true,
                         R.drawable.logo,generaltag)
+
                 }else{
                     Toast.makeText(this, "Remplissez tous les champs svp!", Toast.LENGTH_SHORT).show()
                 }
@@ -1037,6 +1049,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                                 var lieuxData = lieu(
                                     document.data["nom"] as String,
                                     document.data["specialite"] as String,
+                                    document.data["budget"] as String,
                                     document.data["jourOuv"] as String,
                                     document.data["heureOuv"] as String,
                                     document.data["heureFerm"] as String,
@@ -1056,6 +1069,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                         var lieuxData = lieu(
                             document.data["nom"] as String,
                             document.data["specialite"] as String,
+                            document.data["budget"] as String,
                             document.data["jourOuv"] as String,
                             document.data["heureOuv"] as String,
                             document.data["heureFerm"] as String,
@@ -1139,12 +1153,15 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
         val userLog: SharedPreferences = getSharedPreferences("Log", Context.MODE_PRIVATE)
         email = userLog.getString("lastEmail", null).toString()
+        pass = userLog.getString("pass", null).toString()
 
         db.collection("users").document(email)
             .get()
             .addOnSuccessListener { documents ->
                 if (documents != null) {
                     nom = documents.data!!["nomprenom"].toString()
+                    telephone = documents.data!!["telephone"].toString()
+
                     this.nav_view.profil.nomProfil.text = documents.data!!["nomprenom"].toString()
                 } else {
                     nom = "vide"
@@ -1157,6 +1174,46 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         this.nav_view.emailProfil.text = email
 
         menuInflater.inflate(R.menu.main, menu)
+
+        profil.setOnClickListener { view ->
+            val builder4 = AlertDialog.Builder(this@MainActivity)
+            val inflater = layoutInflater
+            builder4.setTitle("")
+            val dialogLayout4 = inflater.inflate(R.layout.user_profil, null)
+            builder4.setView(dialogLayout4)
+            builder4.setPositiveButton("Fermer") { dialogInterface, i ->
+            }
+            builder4.show()
+
+            dialogLayout4.et_name.setText(nom)
+            dialogLayout4.et_email.setText(email)
+            dialogLayout4.numero.setText(telephone)
+
+            dialogLayout4.btn_register.setOnClickListener { view ->
+
+                if (dialogLayout4.et_name.text.isNotEmpty() && dialogLayout4.et_email.text.isNotEmpty()
+                    && dialogLayout4.numero.text.isNotEmpty()) {
+
+                    if ((dialogLayout4.et_password.text.toString())
+                            .equals(pass)
+                    ) {
+                        Toast.makeText(this, "Modifié!", Toast.LENGTH_LONG).show()
+                    }else{
+                        Toast.makeText(this,
+                            "Veillez renseigner votre mot de passe actuel pour valider la modification!!",
+                            Toast.LENGTH_LONG).show()
+                    }
+
+                }else{
+                    Toast.makeText(this,
+                        "Veillez remplir tous les champs indispensables!",
+                        Toast.LENGTH_LONG).show()
+                }
+
+            }
+
+        }
+
 
         return true
     }

@@ -1,7 +1,143 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              xmlns:app="http://schemas.android.com/apk/res-auto" xmlns:tools="http://schemas.android.com/tools"
               android:orientation="vertical"
               android:layout_width="match_parent"
               android:layout_height="match_parent">
 
+    <ScrollView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+        <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                tools:context=".InscriptionActivity" android:id="@+id/layout1">
+
+            <TextView
+                    android:id="@+id/tv_logo"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Profil"
+                    android:textAlignment="center"
+                    android:textSize="50sp"
+                    android:fontFamily="@font/damion"
+                    android:textColor="#FC7B38" android:layout_alignParentStart="true" android:gravity="center"
+                    android:layout_gravity="center"/>
+
+            <ImageView
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent" app:srcCompat="@android:drawable/ic_menu_info_details"
+                    android:id="@+id/imageView6" android:layout_gravity="center"/>
+            <TextView
+                    android:id="@+id/tv_subtitle"
+                    android:layout_width="273dp"
+                    android:layout_height="62dp"
+                    android:text="Pour que les modifications soient prises en compte veuillez accepter les conditions d'utilisations."
+                    android:textSize="17sp"
+                    android:fontFamily="@font/roboto"
+                    android:layout_marginBottom="50dp" android:textAlignment="center" android:gravity="center"
+                    android:layout_gravity="center"/>
+
+            <EditText
+                    android:id="@+id/et_name"
+                    android:layout_width="match_parent"
+                    android:layout_height="50dp"
+                    android:hint="@string/your_name"
+                    android:layout_marginLeft="20dp"
+                    android:layout_marginRight="20dp"
+                    android:layout_marginBottom="10dp"
+                    android:padding="15dp"
+                    android:inputType="textPersonName"
+                    android:fontFamily="@font/roboto"
+                    android:background="@drawable/et_custom"
+                    android:textSize="15sp"/>
+
+            <EditText
+                    android:id="@+id/numero"
+                    android:layout_width="match_parent"
+                    android:layout_height="50dp"
+                    android:hint="Numéro de téléphone (Facultatif)"
+                    android:layout_marginLeft="20dp"
+                    android:layout_marginRight="20dp"
+                    android:layout_marginBottom="10dp"
+                    android:padding="15dp"
+                    android:inputType="numberSigned|text"
+                    android:fontFamily="@font/roboto"
+                    android:background="@drawable/et_custom"
+                    android:textSize="15sp"/>
+            <EditText
+                    android:id="@+id/et_email"
+                    android:enabled="false"
+                    android:layout_width="match_parent"
+                    android:layout_height="50dp"
+                    android:hint="@string/e_mail"
+                    android:layout_marginLeft="20dp"
+                    android:layout_marginRight="20dp"
+                    android:layout_marginBottom="10dp"
+                    android:padding="15dp"
+                    android:fontFamily="@font/roboto"
+                    android:inputType="textEmailAddress"
+                    android:background="@drawable/et_custom"
+                    android:textSize="15sp"/>
+
+            <EditText
+                    android:id="@+id/et_password"
+                    android:layout_width="match_parent"
+                    android:layout_height="50dp"
+                    android:hint="@string/password"
+                    android:layout_marginLeft="20dp"
+                    android:layout_marginRight="20dp"
+                    android:layout_marginBottom="10dp"
+                    android:padding="15dp"
+                    android:fontFamily="@font/roboto"
+                    android:inputType="textPassword"
+                    android:background="@drawable/et_custom"
+                    android:textSize="15sp"/>
+
+            <RelativeLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="316dp"
+                    android:layout_weight="1">
+
+                <Button
+                        android:id="@+id/btn_register"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:background="@drawable/btn_custom"
+                        android:fontFamily="@font/roboto"
+                        android:layout_marginLeft="20dp"
+                        android:layout_marginRight="20dp"
+                        android:layout_marginBottom="30dp"
+                        android:textColor="@android:color/white"
+                        android:text="Modifier" android:backgroundTint="#FC7B38"
+                        android:textStyle="bold" android:layout_centerInParent="true"/>
+
+                <CheckBox
+                        android:text="J'ai lu et j'accepte les"
+                        android:layout_width="312dp"
+                        android:layout_height="wrap_content" android:id="@+id/checkBox"
+                        android:layout_above="@+id/btn_register"
+                        android:layout_marginBottom="81dp"
+                        android:gravity="center" android:layout_alignParentEnd="true" android:layout_marginEnd="52dp"
+                        android:layout_alignParentStart="true" android:layout_marginStart="47dp"/>
+                <TextView
+                        android:text="conditions d'utilisations."
+                        android:layout_width="263dp"
+                        android:layout_height="wrap_content" android:id="@+id/textView2"
+                        android:layout_above="@+id/btn_register"
+                        android:layout_marginBottom="61dp" android:layout_marginEnd="16dp"
+                        android:layout_alignEnd="@+id/checkBox" android:textStyle="bold" android:textColor="#EDFF5722"
+                        android:fontFamily="@font/roboto"
+                        android:gravity="center" android:layout_marginStart="23dp"
+                        android:layout_alignStart="@+id/checkBox"/>
+
+            </RelativeLayout>
+
+
+        </LinearLayout>
+
+
+    </ScrollView>
 </LinearLayout>

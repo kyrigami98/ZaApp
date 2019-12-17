@@ -14,8 +14,8 @@
         android:gravity="bottom|center" android:id="@+id/profil">
 
     <ImageView
-            android:layout_width="264dp"
-            android:layout_height="83dp"
+            android:layout_width="225dp"
+            android:layout_height="61dp"
             android:paddingTop="@dimen/nav_header_vertical_spacing"
             app:srcCompat="@android:drawable/ic_menu_edit"
             android:contentDescription="@string/nav_header_desc"
@@ -37,5 +37,16 @@
             android:text="@string/nav_header_subtitle"
             android:id="@+id/emailProfil"
             android:gravity="bottom|center"/>
+    <LinearLayout
+            android:orientation="horizontal"
+            android:layout_width="253dp"
+            android:layout_height="49dp">
+        <TextView
+                android:text="Cliquez ici pour modifier vos informations personnelles"
+                android:layout_width="206dp"
+                android:layout_height="match_parent" android:id="@+id/textView" android:gravity="center"
+                android:layout_weight="1" android:textStyle="italic" android:textColor="#D3FF0E"
+                android:textSize="12sp"/>
+    </LinearLayout>
 
 </LinearLayout>

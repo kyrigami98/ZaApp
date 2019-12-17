@@ -61,6 +61,7 @@ class ConnectActivity : AppCompatActivity() {
                                     val user = mAuth.currentUser
                                     val editor: SharedPreferences.Editor = sharedPref.edit()
                                     editor.putString("lastEmail", user!!.email.toString())
+                                    editor.putString("pass", et_password1.text.toString())
                                     editor.commit()
                                     if (switch1.isChecked){
                                         editor.putString("resterConecter", "true")
