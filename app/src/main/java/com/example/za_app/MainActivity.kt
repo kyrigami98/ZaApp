@@ -798,6 +798,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                 .addOnSuccessListener { document ->
                     if (document != null) {
 
+                        dialogLayout.budgetMin.text = document.data!!["budget"].toString()
                         dialogLayout.special.text = document.data!!["specialite"].toString()
                         dialogLayout.ouvertureDay.text = document.data!!["jourOuv"].toString()
                         dialogLayout.ouverturehour.text = document.data!!["heureOuv"].toString()
@@ -926,6 +927,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                                 JourOuv = document.data!!["jourOuv"].toString()
                                 heureOuv = document.data!!["heureOuv"].toString()
                                 heureFerm = document.data!!["heureFerm"].toString()
+                                budget = document.data!!["budget"].toString()
 
                                 Mylatitude = it.position.latitude
                                 Mylongtude = it.position.longitude

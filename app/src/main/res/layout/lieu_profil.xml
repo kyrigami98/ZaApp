@@ -83,6 +83,30 @@
                         android:text="Vide" android:id="@+id/special"/>
             </LinearLayout>
             <LinearLayout
+                    android:orientation="horizontal"
+                    android:paddingLeft="25dp"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+                <ImageView
+                        android:layout_width="20dp"
+                        android:layout_height="36dp"
+                        android:src="@drawable/ic_menu_manage" android:tint="#FC7A37"/>
+                <TextView
+                        android:textStyle="bold"
+                        android:layout_gravity="center_vertical"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:paddingLeft="20dp"
+                        android:text="Budget :" android:layout_weight="1"/>
+                <TextView
+                        android:textStyle="bold"
+                        android:layout_gravity="center_vertical"
+                        android:layout_width="155dp"
+                        android:layout_height="wrap_content"
+                        android:paddingLeft="20dp"
+                        android:text="Vide" android:id="@+id/budgetMin"/>
+            </LinearLayout>
+            <LinearLayout
                     android:layout_marginTop="25dp"
                     android:orientation="horizontal"
                     android:paddingLeft="25dp"

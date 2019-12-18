@@ -43,6 +43,7 @@ class ConnectActivity : AppCompatActivity() {
 
         if (sharedPref.getString("resterConecter", null) == "true"){
             et_email1.setText(sharedPref.getString("lastEmail", null))
+            et_password1.setText(sharedPref.getString("pass", null))
             switch1.isChecked = true
         }
 
