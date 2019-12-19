@@ -41,11 +41,6 @@ class ConnectActivity : AppCompatActivity() {
 
         val sharedPref: SharedPreferences = getSharedPreferences("Log", Context.MODE_PRIVATE)
 
-        if (sharedPref.getString("resterConecter", null) == "true"){
-            et_email1.setText(sharedPref.getString("lastEmail", null))
-            et_password1.setText(sharedPref.getString("pass", null))
-            switch1.isChecked = true
-        }
 
         mAuth = FirebaseAuth.getInstance()
 
@@ -87,8 +82,13 @@ class ConnectActivity : AppCompatActivity() {
 
         }
 
-
-
+        if (sharedPref.getString("resterConecter", null) == "true"){
+            et_email1.setText(sharedPref.getString("lastEmail", null))
+            et_password1.setText(sharedPref.getString("pass", null))
+            switch1.isChecked = true
+            login.performClick()
+        }
+        
         inscrip.setOnClickListener(object : View.OnClickListener {
             override fun onClick(v: View?) {
                 val intent = Intent(this@ConnectActivity, InscriptionActivity::class.java)

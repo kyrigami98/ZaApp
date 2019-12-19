@@ -106,6 +106,8 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     private val stokage = FirebaseStorage.getInstance()
     private val storageRef = stokage.reference
 
+    val database = FirebaseDatabase.getInstance()
+    val myref = database.getReference()
     /*************************************************************************************************/
 
 
@@ -1199,7 +1201,19 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                     if ((dialogLayout4.et_password.text.toString())
                             .equals(pass)
                     ) {
-                        Toast.makeText(this, "Modifié!", Toast.LENGTH_LONG).show()
+                        try {
+
+                            db.collection("users").document(email)
+                                .update("telephone",dialogLayout4.numero.text)
+
+                            db.collection("users").document(email)
+                                .update("nomprenom",dialogLayout4.et_name.text)
+
+                            Toast.makeText(this, "Modifié!", Toast.LENGTH_LONG).show()
+
+                        } catch (e: Exception) {
+                            e.printStackTrace()
+                        }
                     }else{
                         Toast.makeText(this,
                             "Veillez renseigner votre mot de passe actuel pour valider la modification!!",
