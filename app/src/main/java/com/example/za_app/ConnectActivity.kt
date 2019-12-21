@@ -79,7 +79,6 @@ class ConnectActivity : AppCompatActivity() {
                     snack("Veillez remplir tous les champs!")
                 }
 
-
         }
 
         if (sharedPref.getString("resterConecter", null) == "true"){
@@ -88,7 +87,7 @@ class ConnectActivity : AppCompatActivity() {
             switch1.isChecked = true
             login.performClick()
         }
-        
+
         inscrip.setOnClickListener(object : View.OnClickListener {
             override fun onClick(v: View?) {
                 val intent = Intent(this@ConnectActivity, InscriptionActivity::class.java)

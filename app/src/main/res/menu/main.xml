@@ -1,10 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
       xmlns:app="http://schemas.android.com/apk/res-auto">
-    <item android:id="@+id/action_settings"
-          android:title="Deconnexion"
+    <item android:id="@+id/action_day"
+          android:title="Mode jour"
           android:orderInCategory="100"
-          app:showAsAction="never"/>
+          app:showAsAction="never" android:icon="@android:drawable/toast_frame"/>
+
+    <item android:id="@+id/action_night"
+          android:title="Mode Nuit"
+          android:orderInCategory="100"
+          app:showAsAction="never" android:icon="@android:drawable/presence_invisible"/>
 
     <item android:id="@+id/action_search"
           android:title="Search"

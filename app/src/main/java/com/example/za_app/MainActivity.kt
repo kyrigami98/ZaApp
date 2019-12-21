@@ -800,7 +800,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                 .addOnSuccessListener { document ->
                     if (document != null) {
 
-                        dialogLayout.budgetMin.text = document.data!!["budget"].toString()
+                        dialogLayout.budgetMin.text = document.data!!["budget"].toString().plus(" F CFA")
                         dialogLayout.special.text = document.data!!["specialite"].toString()
                         dialogLayout.ouvertureDay.text = document.data!!["jourOuv"].toString()
                         dialogLayout.ouverturehour.text = document.data!!["heureOuv"].toString()
@@ -1103,7 +1103,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         builder3.setView(dialogLayout3)
         builder3.setPositiveButton("Fermer") { dialogInterface, i ->
         }
-        builder3.show()
+        val searching = builder3.show()
 
         val lv = dialogLayout3.findViewById<ListView>(R.id.recipe_list_view)
         lv.transcriptMode = ListView.TRANSCRIPT_MODE_NORMAL
@@ -1113,7 +1113,18 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         lv.adapter = prodAdapter
 
         lv.setOnItemClickListener { parent, view, position, id ->
-            Toast.makeText(this, "Anda memilih: ${lv[position]}",Toast.LENGTH_SHORT).show()
+
+            val item = parent.getItemAtPosition(position) as lieu
+            var longitudeSelect = item.longitude
+            var latitudeSelect = item.latitude
+
+            var coordinate =  LatLng(latitudeSelect, longitudeSelect)
+            var location = CameraUpdateFactory.newLatLngZoom(
+                coordinate, 20f)
+
+            searching.dismiss()
+            googleMap!!.animateCamera(location)
+
         }
 
         dialogLayout3.searchbar.addTextChangedListener(object : TextWatcher {
@@ -1201,22 +1212,32 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                     if ((dialogLayout4.et_password.text.toString())
                             .equals(pass)
                     ) {
-                        try {
+                        if(dialogLayout4.checkBox.isChecked){
 
-                            db.collection("users").document(email)
-                                .update("telephone",dialogLayout4.numero.text)
+                            try {
+                                nom = dialogLayout4.et_name.text.toString()
+                                telephone = dialogLayout4.numero.text.toString()
+                                nav_view.nomProfil.text = nom
+                                db.collection("users").document(email)
+                                    .update("telephone",dialogLayout4.numero.text.toString())
 
-                            db.collection("users").document(email)
-                                .update("nomprenom",dialogLayout4.et_name.text)
+                                db.collection("users").document(email)
+                                    .update("nomprenom",dialogLayout4.et_name.text.toString())
 
-                            Toast.makeText(this, "Modifié!", Toast.LENGTH_LONG).show()
+                                Toast.makeText(this, "Modifié!", Toast.LENGTH_LONG).show()
 
-                        } catch (e: Exception) {
-                            e.printStackTrace()
+                            } catch (e: Exception) {
+                                e.printStackTrace()
+                            }
+
+                        }else{
+                            Toast.makeText(this, "Veillez acceptez les conditions d'utilisation!",
+                                Toast.LENGTH_LONG).show()
                         }
+
                     }else{
                         Toast.makeText(this,
-                            "Veillez renseigner votre mot de passe actuel pour valider la modification!!",
+                            "Veillez renseigner votre mot de passe actuel pour valider la modification!",
                             Toast.LENGTH_LONG).show()
                     }
 
@@ -1239,7 +1260,11 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         // automatically handle clicks on the Home/Up button, so long
         // as you specify a parent activity in AndroidManifest.xml.
         return when (item.itemId) {
-            R.id.action_settings -> {
+            R.id.action_day -> {
+                true
+            }
+
+            R.id.action_night -> {
                 true
             }
 
@@ -1265,10 +1290,30 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             R.id.nav_share -> {
 
             }
-            R.id.nav_send -> {
+            R.id.nav_logout -> {
+
+                val builder = AlertDialog.Builder(this@MainActivity)
+
+                // Set the alert dialog title
+                builder.setTitle("Se deconnecter ?")
+
+                // Display a message on alert dialog
+                builder.setMessage("Êtes-vous sûr de vouloir vous deconnecter?")
+
+                // Set a positive button and its click listener on alert dialog
+                builder.setPositiveButton("Se deconnecter"){dialog, which ->
+                    val sharedPref: SharedPreferences = getSharedPreferences("Log", Context.MODE_PRIVATE)
+                    sharedPref.edit().clear().commit()
+                    finishAffinity()
+                }
+                builder.setNegativeButton("Annuler"){dialog,which ->
+                }
+                val dialog: AlertDialog = builder.create()
+                dialog.show()
 
             }
         }
+
         val drawerLayout: DrawerLayout = findViewById(R.id.drawer_layout)
         drawerLayout.closeDrawer(GravityCompat.START)
         return true
