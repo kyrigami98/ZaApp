@@ -27,6 +27,7 @@ import android.text.Editable
 import android.text.TextWatcher
 import android.util.Log
 import android.view.*
+import android.view.inputmethod.InputMethodManager
 import android.widget.*
 import com.google.android.gms.maps.model.*
 import com.google.android.gms.maps.model.LatLng
@@ -44,6 +45,7 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.firestore.DocumentChange
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.model.value.ReferenceValue
 import com.google.firebase.storage.FirebaseStorage
 import com.google.firebase.storage.StorageReference
 import com.squareup.picasso.Picasso
@@ -60,6 +62,7 @@ import kotlinx.android.synthetic.main.search.view.*
 import kotlinx.android.synthetic.main.user_profil.view.*
 import java.nio.ByteBuffer
 import java.util.*
+import kotlin.collections.ArrayList
 
 
 class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener, OnMapReadyCallback,
@@ -806,7 +809,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                         dialogLayout.ouverturehour.text = document.data!!["heureOuv"].toString()
                         dialogLayout.fermertureHour.text = document.data!!["heureFerm"].toString()
 
-                        var lieu = currentMarker!!.title.toString().replace(" ", "").trim();
+                        var lieu = currentMarker!!.title.toString().replace(" ", "").trim()
 
                         var path = "${lieu}${currentMarker!!.position.latitude}${currentMarker!!.position.longitude}"
 
@@ -1035,13 +1038,14 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
     }
 
+
+
     fun search(things : String): MutableList<lieu> {
 
         listLieux.clear()
         val LieuRef = db.collection("lieux")
         LieuRef.whereEqualTo("nom", things)
             .whereGreaterThanOrEqualTo("nom", things)
-            //.whereEqualTo("specialite", things)
             .get()
             .addOnSuccessListener { documents ->
                 if (documents.isEmpty){
@@ -1109,8 +1113,12 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         lv.transcriptMode = ListView.TRANSCRIPT_MODE_NORMAL
         lv.isStackFromBottom = true
         val prodAdapter = CustomAdapter(this@MainActivity, listLieux)
-
         lv.adapter = prodAdapter
+
+        dialogLayout3.searchbar.requestFocus()
+        val imm = getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+        imm.toggleSoftInput(InputMethodManager.SHOW_FORCED, 0)
+
 
         lv.setOnItemClickListener { parent, view, position, id ->
 
@@ -1147,6 +1155,132 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             }
         })
 
+
+    }
+
+    fun getFavoris(): MutableList<lieu> {
+
+        listLieux.clear()
+        val LieuRef = db.collection("users")
+        LieuRef.document(email)
+            .get()
+            .addOnSuccessListener { documents ->
+
+                val separated =  documents["favoris"].toString().trim()
+                    .splitToSequence(',',']','[',' ')
+                    .filter { it.isNotEmpty() }.filter { it.isNotBlank() }
+                    .toList()
+
+                Log.i("Favoris",documents["favoris"].toString())
+                if (separated.isNotEmpty()){
+                    separated.forEach {
+                        Log.i("Favoris",it)
+                        db.collection("lieux")
+                            .document(it)
+                            .get().addOnSuccessListener { document ->
+                                if (document.exists()) {
+                                    var lieuxData = lieu(
+                                        document.get("nom") as String,
+                                        document.get("specialite") as String,
+                                        document.get("budget") as String,
+                                        document.get("jourOuv") as String,
+                                        document.get("heureOuv") as String,
+                                        document.get("heureFerm") as String,
+                                        document.get("longitude") as Double,
+                                        document.get("latitude") as Double,
+                                        document.get("createur") as String
+                                    )
+                                    listLieux.add(lieuxData)
+                                }
+
+                            }.addOnFailureListener { exception ->
+                                Toast.makeText(this, "DON'T FONUD", Toast.LENGTH_LONG).show()
+                            }
+
+                    }
+
+                }else{
+                    Toast.makeText(this, "DON'T WORK", Toast.LENGTH_LONG).show()
+                }
+
+            }.addOnFailureListener { exception ->
+                Toast.makeText(this, "DON'T FONUD", Toast.LENGTH_LONG).show()
+            }
+
+        return listLieux
+    }
+
+    fun favorisModal() {
+
+
+        val builder3 = AlertDialog.Builder(this@MainActivity)
+        val inflater = layoutInflater
+        builder3.setTitle("Mes favoris")
+        val dialogLayout3 = inflater.inflate(R.layout.search, null)
+        builder3.setView(dialogLayout3)
+        val lv = dialogLayout3.findViewById<ListView>(R.id.recipe_list_view)
+        lv.transcriptMode = ListView.TRANSCRIPT_MODE_NORMAL
+        lv.isStackFromBottom = true
+        getFavoris()
+        val prodAdapter = CustomAdapter(this@MainActivity, listLieux)
+        lv.adapter = prodAdapter
+
+        val imm = getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+        builder3.setPositiveButton("Fermer") { dialogInterface, i ->
+            imm.hideSoftInputFromWindow(dialogLayout3.searchbar.windowToken, 0)
+        }
+        val favorising = builder3.show()
+
+        dialogLayout3.searchbar.requestFocusFromTouch()
+        imm.toggleSoftInput(InputMethodManager.SHOW_FORCED, 0)
+
+        dialogLayout3.searchbar.addTextChangedListener(object : TextWatcher {
+
+            override fun afterTextChanged(s: Editable) {
+
+                var month: ArrayList<lieu> = listLieux
+                var monthList: List<lieu> = month.filter { value -> value.nom == s.toString() }
+
+                if (monthList.isEmpty()){
+                    val prodAdapter = CustomAdapter(this@MainActivity, listLieux)
+                    lv.adapter = prodAdapter
+                    prodAdapter.notifyDataSetChanged()
+                }else{
+                    val prodAdapter = CustomAdapter(this@MainActivity, monthList as ArrayList<lieu>)
+                    lv.adapter = prodAdapter
+                    prodAdapter.notifyDataSetChanged()
+                }
+
+            }
+
+            override fun beforeTextChanged(s: CharSequence, start: Int,
+                                           count: Int, after: Int) {
+            }
+
+            override fun onTextChanged(s: CharSequence, start: Int,
+                                       before: Int, count: Int) {
+
+
+            }
+
+        })
+
+
+        lv.setOnItemClickListener { parent, view, position, id ->
+
+            imm.hideSoftInputFromWindow(dialogLayout3.searchbar.windowToken, 0)
+            val item = parent.getItemAtPosition(position) as lieu
+            var longitudeSelect = item.longitude
+            var latitudeSelect = item.latitude
+
+            var coordinate =  LatLng(latitudeSelect, longitudeSelect)
+            var location = CameraUpdateFactory.newLatLngZoom(
+                coordinate, 20f)
+
+            favorising.dismiss()
+            googleMap!!.animateCamera(location)
+
+        }
 
     }
 
@@ -1280,13 +1414,9 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     override fun onNavigationItemSelected(item: MenuItem): Boolean {
         // Handle navigation view item clicks here.
         when (item.itemId) {
-            R.id.nav_see -> {
-                // Handle the camera action
-            }
             R.id.nav_fav -> {
-
+                favorisModal()
             }
-
             R.id.nav_share -> {
 
             }

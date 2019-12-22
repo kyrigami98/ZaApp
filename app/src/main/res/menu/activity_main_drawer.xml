@@ -8,22 +8,14 @@
                 android:id="@+id/nav_fav"
                 android:icon="@android:drawable/star_big_off"
                 android:title="@string/menu_fav"/>
-        <item
-                android:id="@+id/nav_see"
-                android:icon="@android:drawable/ic_dialog_map"
-                android:title="@string/menu_see"/>
 
-        <item
-                android:id="@+id/nav_tools"
-                android:icon="@drawable/ic_menu_manage"
-                android:title="@string/menu_tools"/>
         <item
                 android:id="@+id/nav_logout"
                 android:icon="@android:drawable/ic_lock_power_off"
                 android:title="Deconnexion"/>
     </group>
 
-    <item android:title="Communicate">
+    <item android:title="Communication">
         <menu>
             <item
                     android:id="@+id/nav_share"
