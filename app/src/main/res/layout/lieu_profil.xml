@@ -189,7 +189,7 @@
         </LinearLayout>
 
         <Button
-                android:id="@+id/closeLieu"
+                android:id="@+id/favorisLieu"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:background="@drawable/btn_custom"
@@ -198,7 +198,7 @@
                 android:layout_marginRight="20dp"
                 android:layout_marginBottom="5dp"
                 android:textColor="@android:color/white"
-                android:text="Allez maintenant" android:backgroundTint="#FC7B38"
+                android:text="Ajoutez aux favoris" android:backgroundTint="#FC7B38"
                 android:textStyle="bold" android:layout_centerVertical="true"
                 android:layout_centerHorizontal="true" android:layout_marginTop="20dp"/>
         <LinearLayout

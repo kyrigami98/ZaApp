@@ -44,6 +44,7 @@ import com.google.android.material.snackbar.Snackbar
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.firestore.DocumentChange
+import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.model.value.ReferenceValue
 import com.google.firebase.storage.FirebaseStorage
@@ -922,6 +923,23 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
                             }
 
+                            dialogLayout.favorisLieu.setOnClickListener { view ->
+                                db.collection("users").document(email)
+                                    .update("favoris", FieldValue.arrayUnion(document.id))
+                                    .addOnSuccessListener {
+                                        Toast.makeText(
+                                            applicationContext,
+                                            "Ajouté au favoris!", Toast.LENGTH_SHORT
+                                        ).show()
+                                    }
+                                    .addOnFailureListener {
+                                            e -> Log.w(TAG, "Error writing document", e)
+                                        Toast.makeText(
+                                            applicationContext,
+                                            "Echec d'ajout!", Toast.LENGTH_SHORT
+                                        ).show()
+                                    }
+                            }
 
                             dialogLayout.modifLieu.setOnClickListener { view ->
 
@@ -1100,12 +1118,14 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
     fun searchModal(){
 
+        val imm = getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
         val builder3 = AlertDialog.Builder(this@MainActivity)
         val inflater = layoutInflater
         builder3.setTitle("")
         val dialogLayout3 = inflater.inflate(R.layout.search, null)
         builder3.setView(dialogLayout3)
         builder3.setPositiveButton("Fermer") { dialogInterface, i ->
+            imm.hideSoftInputFromWindow(dialogLayout3.searchbar.windowToken, 0)
         }
         val searching = builder3.show()
 
@@ -1115,10 +1135,8 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         val prodAdapter = CustomAdapter(this@MainActivity, listLieux)
         lv.adapter = prodAdapter
 
-        dialogLayout3.searchbar.requestFocus()
-        val imm = getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+        dialogLayout3.searchbar.requestFocusFromTouch()
         imm.toggleSoftInput(InputMethodManager.SHOW_FORCED, 0)
-
 
         lv.setOnItemClickListener { parent, view, position, id ->
 
