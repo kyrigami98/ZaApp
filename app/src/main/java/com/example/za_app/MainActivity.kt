@@ -55,6 +55,7 @@ import kotlinx.android.synthetic.main.app_bar_main.*
 import kotlinx.android.synthetic.main.content_main.*
 import kotlinx.android.synthetic.main.lieu_profil.*
 import kotlinx.android.synthetic.main.lieu_profil.view.*
+import kotlinx.android.synthetic.main.list_item_recipe.view.*
 import kotlinx.android.synthetic.main.modal.*
 import kotlinx.android.synthetic.main.modal.view.*
 import kotlinx.android.synthetic.main.nav_header_main.*
@@ -82,7 +83,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     private var context: Context? = null
     lateinit var imagePath: String
     var imagesList: MutableList<Uri> = arrayListOf()
-    var listLieux: ArrayList<lieu> = arrayListOf()
+    var listLieux: ArrayList<lieuRecu> = arrayListOf()
 
     var Mylongtude = 2.315834
     var Mylatitude = 9.0578879005793
@@ -321,6 +322,8 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             val mBuilder = AlertDialog.Builder(this)
                 .setView(mDialogView)
                 .setTitle("Modifier le marqueur")
+
+            mBuilder.setIcon(android.R.drawable.ic_menu_edit)
             //show dialog
             val  mAlertDialog = mBuilder.show()
 
@@ -344,6 +347,8 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                 val builder = AlertDialog.Builder(this)
 
                 builder.setTitle("Selectionnez les jours d'ouvertures:")
+
+                builder.setIcon(android.R.drawable.ic_menu_my_calendar)
                 builder.setMultiChoiceItems(items, null
                 ) { dialog, which, isChecked ->
                     if (isChecked) {
@@ -792,6 +797,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             val builder = AlertDialog.Builder(this@MainActivity)
             val inflater = layoutInflater
             builder.setTitle(currentMarker!!.title)
+                builder.setIcon(android.R.drawable.ic_menu_myplaces)
             val dialogLayout = inflater.inflate(R.layout.lieu_profil, null)
             builder.setView(dialogLayout)
             builder.setPositiveButton("Fermer") { dialogInterface, i ->
@@ -1017,13 +1023,22 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
         /****Maps Json style call********************************************************************/
         try {
-            // Customise the styling of the base map using a JSON object defined
-            // in a raw resource file.
-            val success = googleMap!!.setMapStyle(
-                MapStyleOptions.loadRawResourceStyle(
-                    this, R.raw.style_json
+
+            val sharedPref: SharedPreferences = getSharedPreferences("Log", Context.MODE_PRIVATE)
+
+            var success = if(sharedPref.getString("MapMode", null) == "Night"){
+                googleMap!!.setMapStyle(
+                    MapStyleOptions.loadRawResourceStyle(
+                        this, R.raw.night_json
+                    )
                 )
-            )
+            }else{
+                googleMap!!.setMapStyle(
+                    MapStyleOptions.loadRawResourceStyle(
+                        this, R.raw.style_json
+                    )
+                )
+            }
 
             if (!success) {
                 Log.e(TAG, "Style parsing failed.")
@@ -1058,7 +1073,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
 
 
-    fun search(things : String): MutableList<lieu> {
+    fun search(things : String): MutableList<lieuRecu> {
 
         listLieux.clear()
         val LieuRef = db.collection("lieux")
@@ -1068,11 +1083,12 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             .addOnSuccessListener { documents ->
                 if (documents.isEmpty){
                     LieuRef.whereEqualTo("specialite", things)
-                        .whereGreaterThanOrEqualTo("specialite", things)
+                        .whereArrayContains("specialite", things)
                         .get()
                         .addOnSuccessListener { documents ->
                             for (document in documents) {
-                                var lieuxData = lieu(
+                                var lieuxData = lieuRecu(
+                                    document.id as String,
                                     document.data["nom"] as String,
                                     document.data["specialite"] as String,
                                     document.data["budget"] as String,
@@ -1092,7 +1108,8 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                         }
                 }else {
                     for (document in documents) {
-                        var lieuxData = lieu(
+                        var lieuxData = lieuRecu(
+                            document.id as String,
                             document.data["nom"] as String,
                             document.data["specialite"] as String,
                             document.data["budget"] as String,
@@ -1121,7 +1138,8 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         val imm = getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
         val builder3 = AlertDialog.Builder(this@MainActivity)
         val inflater = layoutInflater
-        builder3.setTitle("")
+        builder3.setTitle("Recherche")
+        builder3.setIcon(android.R.drawable.ic_menu_search)
         val dialogLayout3 = inflater.inflate(R.layout.search, null)
         builder3.setView(dialogLayout3)
         builder3.setPositiveButton("Fermer") { dialogInterface, i ->
@@ -1132,7 +1150,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         val lv = dialogLayout3.findViewById<ListView>(R.id.recipe_list_view)
         lv.transcriptMode = ListView.TRANSCRIPT_MODE_NORMAL
         lv.isStackFromBottom = true
-        val prodAdapter = CustomAdapter(this@MainActivity, listLieux)
+        val prodAdapter = CustomAdapter(this@MainActivity, listLieux, "recherche")
         lv.adapter = prodAdapter
 
         dialogLayout3.searchbar.requestFocusFromTouch()
@@ -1140,7 +1158,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
         lv.setOnItemClickListener { parent, view, position, id ->
 
-            val item = parent.getItemAtPosition(position) as lieu
+            val item = parent.getItemAtPosition(position) as lieuRecu
             var longitudeSelect = item.longitude
             var latitudeSelect = item.latitude
 
@@ -1176,7 +1194,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
     }
 
-    fun getFavoris(): MutableList<lieu> {
+    fun getFavoris(): MutableList<lieuRecu> {
 
         listLieux.clear()
         val LieuRef = db.collection("users")
@@ -1197,7 +1215,8 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                             .document(it)
                             .get().addOnSuccessListener { document ->
                                 if (document.exists()) {
-                                    var lieuxData = lieu(
+                                    var lieuxData = lieuRecu(
+                                        document.id as String,
                                         document.get("nom") as String,
                                         document.get("specialite") as String,
                                         document.get("budget") as String,
@@ -1230,17 +1249,17 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
     fun favorisModal() {
 
-
         val builder3 = AlertDialog.Builder(this@MainActivity)
         val inflater = layoutInflater
         builder3.setTitle("Mes favoris")
         val dialogLayout3 = inflater.inflate(R.layout.search, null)
+        builder3.setIcon(android.R.drawable.star_big_on)
         builder3.setView(dialogLayout3)
         val lv = dialogLayout3.findViewById<ListView>(R.id.recipe_list_view)
         lv.transcriptMode = ListView.TRANSCRIPT_MODE_NORMAL
         lv.isStackFromBottom = true
         getFavoris()
-        val prodAdapter = CustomAdapter(this@MainActivity, listLieux)
+        val prodAdapter = CustomAdapter(this@MainActivity, listLieux,"favoris")
         lv.adapter = prodAdapter
 
         val imm = getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
@@ -1256,15 +1275,16 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
             override fun afterTextChanged(s: Editable) {
 
-                var month: ArrayList<lieu> = listLieux
-                var monthList: List<lieu> = month.filter { value -> value.nom == s.toString() }
+                var month: ArrayList<lieuRecu> = listLieux
+                var monthList: List<lieuRecu> = month.filter { value -> value.nom == s.toString() }
 
                 if (monthList.isEmpty()){
-                    val prodAdapter = CustomAdapter(this@MainActivity, listLieux)
+                    val prodAdapter = CustomAdapter(this@MainActivity, listLieux, "favoris")
                     lv.adapter = prodAdapter
                     prodAdapter.notifyDataSetChanged()
                 }else{
-                    val prodAdapter = CustomAdapter(this@MainActivity, monthList as ArrayList<lieu>)
+                    val prodAdapter = CustomAdapter(this@MainActivity, monthList as ArrayList<lieuRecu>,
+                        "favoris")
                     lv.adapter = prodAdapter
                     prodAdapter.notifyDataSetChanged()
                 }
@@ -1283,11 +1303,10 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
         })
 
-
         lv.setOnItemClickListener { parent, view, position, id ->
 
             imm.hideSoftInputFromWindow(dialogLayout3.searchbar.windowToken, 0)
-            val item = parent.getItemAtPosition(position) as lieu
+            val item = parent.getItemAtPosition(position) as lieuRecu
             var longitudeSelect = item.longitude
             var latitudeSelect = item.latitude
 
@@ -1413,10 +1432,33 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         // as you specify a parent activity in AndroidManifest.xml.
         return when (item.itemId) {
             R.id.action_day -> {
+                val sharedPref: SharedPreferences = getSharedPreferences("Log", Context.MODE_PRIVATE)
+                val editor: SharedPreferences.Editor = sharedPref.edit()
+                editor.putString("MapMode","Day")
+                editor.commit()
+
+                googleMap!!.setMapStyle(
+                    MapStyleOptions.loadRawResourceStyle(
+                        this, R.raw.style_json
+                    )
+                )
+
                 true
             }
 
             R.id.action_night -> {
+
+                val sharedPref: SharedPreferences = getSharedPreferences("Log", Context.MODE_PRIVATE)
+                val editor: SharedPreferences.Editor = sharedPref.edit()
+                editor.putString("MapMode","Night")
+                editor.commit()
+
+                googleMap!!.setMapStyle(
+                    MapStyleOptions.loadRawResourceStyle(
+                        this, R.raw.night_json
+                    )
+                )
+
                 true
             }
 
