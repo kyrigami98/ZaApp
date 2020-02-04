@@ -9,6 +9,7 @@ import android.os.Handler
 import android.os.Parcel
 import android.os.Parcelable
 import android.view.View
+import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.FragmentPagerAdapter
@@ -86,6 +87,21 @@ class ConnectActivity : AppCompatActivity() {
             et_password1.setText(sharedPref.getString("pass", null))
             switch1.isChecked = true
             login.performClick()
+        }
+
+        oublier.setOnClickListener {
+            if (et_email1.text.isNotEmpty()) {
+                mAuth!!.sendPasswordResetEmail(et_email1.text.toString())
+                    .addOnCompleteListener { task ->
+                        if (task.isSuccessful) {
+                            snack("Consultez vos email pour le renouvellement de mot de passe!")
+                        } else {
+                            snack("Echec lors de la reinitialisation!")
+                        }
+                    }
+            }else{
+                snack("Veillez verifier votre email pour faire ceci!")
+            }
         }
 
         inscrip.setOnClickListener(object : View.OnClickListener {

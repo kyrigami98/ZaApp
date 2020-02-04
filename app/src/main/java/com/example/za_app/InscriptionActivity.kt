@@ -68,6 +68,12 @@ class InscriptionActivity : AppCompatActivity() {
 
                                     db.collection("users").document(et_email.text.toString().trim())
                                         .set(userTab)
+                                    user?.sendEmailVerification()
+                                        ?.addOnCompleteListener { task ->
+                                            if (task.isSuccessful) {
+                                                Log.d("User", "Email sent.")
+                                            }
+                                        }
 
                                     snack("Bienvenu chez Za!")
 
