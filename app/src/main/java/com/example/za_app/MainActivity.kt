@@ -99,6 +99,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     var nom=""
     var email=""
     var telephone =""
+    var isValid =false
 
     var markerdrag = HashMap<Marker, Integer>()
 
@@ -156,7 +157,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                             }
 
                             val lieuTab: lieu =
-                                lieu(NomLieu, speciality,budget, JourOuv, heureOuv, heureFerm, Mylongtude, Mylatitude,email)
+                                lieu(NomLieu, speciality,budget, JourOuv, heureOuv, heureFerm, Mylongtude, Mylatitude,email,isValid)
                             db.collection("lieux")
                                 .add(lieuTab)
                             var imagesname = NomLieu.trim() + Mylatitude + Mylongtude;
@@ -488,14 +489,17 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             .get()
             .addOnSuccessListener { documents ->
                 for (document in documents) {
-                    // Log.d(TAG, "${document.data["nom"]} => ${document.data}")
-                    addMarkerMap(
-                        document.data["latitude"] as Double, document.data["longitude"] as Double,
-                        document.data["nom"] as String,
-                        document.data["specialite"].toString().plus(" ")
-                            .plus("(Voir details)"),
-                        7.0f, false, R.drawable.logo,document.id
-                    )
+                    if(document.data["isValid"] == true) {
+
+                        addMarkerMap(
+                            document.data["latitude"] as Double, document.data["longitude"] as Double,
+                            document.data["nom"] as String,
+                            document.data["specialite"].toString().plus(" ")
+                                .plus("(Voir details)"),
+                            7.0f, false, R.drawable.logo, document.id
+                        )
+
+                    }
 
                 }
             }
@@ -517,13 +521,16 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
                 for (dc in snapshots!!.documentChanges) {
                     if (dc.type == DocumentChange.Type.ADDED) {
-                        addMarkerMap(
-                            dc.document.data["latitude"] as Double, dc.document.data["longitude"] as Double,
-                            dc.document.data["nom"] as String,
-                            dc.document.data["specialite"].toString().plus(" ")
-                                .plus("(Voir details)"), 7.0f, false, R.drawable.logo,
-                            dc.document.id
-                        )
+                        if( dc.document.data["isValid"] == true) {
+                            addMarkerMap(
+                                dc.document.data["latitude"] as Double, dc.document.data["longitude"] as Double,
+                                dc.document.data["nom"] as String,
+                                dc.document.data["specialite"].toString().plus(" ")
+                                    .plus("(Voir details)"), 7.0f, false, R.drawable.logo,
+                                dc.document.id
+                            )
+                            snack("Nouveau lieu: "+dc.document.data["nom"])
+                        }
                     }
                 }
                 getAndlaodPoints()
@@ -1097,7 +1104,8 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                                     document.data["heureFerm"] as String,
                                     document.data["longitude"] as Double,
                                     document.data["latitude"] as Double,
-                                    document.data["createur"] as String
+                                    document.data["createur"] as String,
+                                    document.data["isValid"] as Boolean
                                 )
                                 listLieux.add(lieuxData)
                             }
@@ -1118,7 +1126,8 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                             document.data["heureFerm"] as String,
                             document.data["longitude"] as Double,
                             document.data["latitude"] as Double,
-                            document.data["createur"] as String
+                            document.data["createur"] as String,
+                            document.data["isValid"] as Boolean
                         )
                         listLieux.add(lieuxData)
                     }
@@ -1225,7 +1234,8 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                                         document.get("heureFerm") as String,
                                         document.get("longitude") as Double,
                                         document.get("latitude") as Double,
-                                        document.get("createur") as String
+                                        document.get("createur") as String,
+                                        document.get("isValid") as Boolean
                                     )
                                     listLieux.add(lieuxData)
                                 }
